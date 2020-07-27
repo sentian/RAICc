@@ -1,3 +1,5 @@
 ### Selection of Regression Models under Linear Restrictions for Fixed and Random Designs
-This repository provides the code to reproduce the simulation results, for the paper
-[Tian, S., Hurvich, C. and Simonoff, J. (2020): "Selection of Regression Models under Linear Restrictions for Fixed and Random Designs"](missing link here).
+
+This project studies the use of information criteria, either squared-error based (e.g Cp, RCp and Sp) or Kullback-Leibler (KL) based (e.g. AICc), on variable selection and general restriction problems, under both fixed-X and random-X designs. A novel KL-based criterion for random-X is proposed and is denoted as RAICc. KL-based criteria (AICc and RAICc) provide better predictive performance compared to the squared-error based criteria and cross-validation. For more details, see our paper [Tian, S., Hurvich, C. and Simonoff, J. (2020): "Selection of Regression Models under Linear Restrictions for Fixed and Random Designs"](https://github.com/sentian/RAICc/blob/master/paper/ms.pdf).
+
+This repository provides the code to reproduce the simulation results and the figures in the paper. The compelete set of simulation results (.rds files) is also provided, along with the graphical representations of the results ([supplemental material](https://github.com/sentian/RAICc/blob/master/paper/simuresults_reduced.pdf))
