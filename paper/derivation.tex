@@ -1,0 +1,154 @@
+%!TEX root = ms.tex
+\section{ Information criteria for fixed-X }
+\label{sec:ic_fixedx}
+In this section, we assume fixed-X and provide expressions for C$_p$ and AICc under general linear restrictions on $\beta$. The expressions of C$_p(k)$ and AICc$(k)$ given in \eqref{eq:cp_subsetselection} and \eqref{eq:aicc_subsetselection}, respectively, for variable selection can be obtained as special cases of the general expressions.
+\subsection{KL-based information criterion}
+Using the likelihood function \eqref{eq:loglike_fixedx} and the MLE \eqref{eq:betahat_sigmahatsq}, the expected log-likelihood can be derived as 
+\begin{equation*}
+\begin{aligned}
+\text{ErrF}_\text{KL} &=  E_{\tilde{y}} [-2 \log f( \tilde{y} | X,\hat\beta,\hat\sigma^2 )] =  n \log (2\pi \hat\sigma^2) + \frac{1}{\hat\sigma^2} E_{\tilde{y}} || \tilde{y}-X\hat\beta||_2^2 \\
+%&= n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} E_\tilde{y} || X\beta_0-X \beta+\epsilon||_2^2 \\
+&= n \log (2\pi \hat\sigma^2) + \frac{1}{\hat\sigma^2}  (\hat\beta-\beta_0)^T X^T X (\hat\beta-\beta_0) + \frac{n\sigma_0^2}{\hat\sigma^2},
+\end{aligned}
+\end{equation*}
+and the training error is 
+\begin{equation*}
+\text{errF}_\text{KL} = -2\log f(y|X,\hat\beta,\hat\sigma^2) = n\log(2\pi\hat\sigma^2) + n.
+\end{equation*}
+We assume that the true model satisfies the linear restrictions, i.e.
+\begin{equation*}
+R\beta_0 = r.
+\end{equation*}
+In the context of variable selection, this assumption indicates that the approximating model includes the true model and is used in the derivations of AIC \citep{linhart1986model} and AICc \citep{hurvich1989regression}. Under this assumption, we have the following lemma. The proofs of all the lemmas and theorems in this paper are given in the Supplemental Material.   
+\begin{lemma}
+  $\hat\sigma^2$ and the quadratic form $(\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0)$ are independent, and 
+  \begin{equation*}
+  \begin{aligned}
+    n \sigma_0^2 E_y\left[ \frac{1}{\hat{\sigma}^2} \right] &= n\frac{n}{n-p+m-2},\\
+    E_y  \left [ (\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0) \right ] &= \sigma_0^2 (p-m).
+  \end{aligned}
+  \end{equation*}
+\label{thm:components_ekl_lr_fixedx}
+\end{lemma}
+Lemma \ref{thm:components_ekl_lr_fixedx} provides the fundamentals for calculating the expected optimism.
+\begin{theorem}
+\begin{equation*}
+E_y(\text{optF}_\text{KL}) = n \frac{n+p-m}{n-p+m-2} - n.
+\end{equation*}
+\label{thm:EoptF_KL}
+\end{theorem}
+
+Consequently, 
+\begin{equation*}
+\widehat{\text{ErrF}}_\text{KL} = \text{errF}_\text{KL} + E_y(\text{optF}_\text{KL}) = n\log(\hat\sigma^2) + n \frac{n+p-m}{n-p+m-2} + n\log(2\pi)
+\end{equation*}
+is an unbiased estimator of the testing error $E_y \left[ \text{ErrF}_\text{KL} \right]$. We follow the same tradition as in the derivations of AIC and AICc that since the term $n\log(2\pi)$ appears in $\widehat{\text{ErrF}}_\text{KL}$ for every model being compared, it is irrelevant when attempting to select a model with best predictive performance. We therefore ignore this term and define 
+\begin{equation*}
+ \text{AICc}(R,r) = n\log \left( \frac{\text{RSS}(R,r)}{n}  \right) + n \frac{n+p-m}{n-p+m-2},
+\end{equation*}
+where RSS$(R,r)= \lVert y -X\hat\beta \rVert_2^2$. For the variable selection problem, e.g. regressing on a subset of predictors with size $k$, we are restricting $p-k$ slope coefficients to be zero. By plugging $\hat\beta = \hat\beta(k)$ and $m=p-k$ into the expressions of AICc$(R,r)$, we obtain AICc$(k)$ given in \eqref{eq:aicc_subsetselection}.
+
+
+\subsection{Squared error-based information criterion}
+The covariance penalty \eqref{eq:EoptF_SE} is defined for any general fitting procedure. By explicitly calculating the covariance term for $\hat\mu=X\hat\beta$, we can obtain the expected optimism.
+\begin{theorem}
+\begin{equation*}
+E_y (\text{optF}_\text{SE}) = 2 \sigma_0^2 (p-m).
+\end{equation*}
+\label{thm:EoptF_SE}
+\end{theorem}
+
+An immediate result of this is that
+\begin{equation*}
+\widehat{\text{ErrF}}_\text{SE} = \text{errF}_\text{SE} + E_y(\text{optF}_\text{SE}) = \text{RSS}(R,r) + 2 \sigma_0^2 (p-m)
+\end{equation*}
+is an unbiased estimator of $E_y(\text{ErrF}_\text{SE})$. Using the unbiased estimator of $\sigma_0^2$ given by the OLS fit based on all of the predictors, i.e. $\hat\sigma_0^2=\text{RSS}(p)/(n-p)$, we define
+\begin{equation*}
+\text{C}_p(R,r) = \text{RSS}(R,r) + \frac{\text{RSS}(p)}{n-p} 2(p-m).
+\end{equation*}
+By substituting $\hat\beta = \hat\beta(k)$ and $m=p-k$ into C$_p(R,r)$, we obtain the C$_p(k)$ as given in \eqref{eq:cp_subsetselection} for the variable selection problem.
+
+\section{ Information criteria for random-X }
+\label{sec:ic_randomx}
+In this section, we assume random-X. We start by proposing a novel KL-based criterion, RAICc. We further derive the criteria RC$_p$ and S$_p$ under linear restrictions on $\beta$. 
+
+\subsection{KL-based information criterion, RAICc}
+We replace the unknown parameters by their MLE, and have the fitted model $f(\cdot|\hat\beta,\hat\sigma^2,\hat\Sigma)$. The KL information measures how well the fitted model predicts the new set of data $(X^{(n)},y^{(n)})$, in terms of the closeness of the distributions of $(X^{(n)},y^{(n)})$ based on fitted model and the true model, i.e. 
+\begin{equation}
+\text{KLR} = E_{X^{(n)},y^{(n)}} \left[ 2\log f(X^{(n)},y^{(n)}|\beta_0,\sigma_0^2,\Sigma_0) -2 \log f(X^{(n)},y^{(n)}|\hat\beta,\hat\sigma^2,\hat\Sigma) \right].
+\label{eq:KLR}
+\end{equation}
+An equivalent form for model comparisons is the expected log-likelihood
+\begin{equation*}
+\begin{aligned}
+\text{ErrR}_\text{KL} &=  E_{X^{(n)},y^{(n)}} \left[ -2 \log f(X^{(n)},y^{(n)}|\hat\beta,\hat\sigma^2,\hat\Sigma) \right] \\
+&= \left[ n \log (2\pi \hat\sigma^2) + \frac{1}{\hat\sigma^2} E_{X^{(n)},y^{(n)}} || y^{(n)}-X^{(n)}\hat\beta||_2^2 \right ] + \left [np \log(2\pi) + n \log |\hat\Sigma| + E_{X^{(n)}} \left(\sum_{i=1}^n {x_{i}^{(n)}}^T \hat\Sigma^{-1} x_{i}^{(n)} \right) \right]\\
+&= \left[ n \log (2\pi \hat\sigma^2) + \frac{n}{\hat\sigma^2}  (\hat\beta-\beta_0)^T \Sigma_0 (\hat\beta-\beta_0) + \frac{n\sigma_0^2}{\hat\sigma^2} \right ] + \left [np \log(2\pi) + n \log |\hat\Sigma| + n \text{Tr}(\hat\Sigma^{-1}\Sigma_{0})\right],
+\end{aligned}
+\end{equation*}
+and the training error is
+\begin{equation*}
+\text{errR}_\text{KL} = -2\log f(X,y|\hat\beta,\hat\sigma^2,\hat\Sigma) = \left [ n \log (2\pi \hat\sigma^2) + n \right ] + \left [np \log(2\pi) + n \log |\hat\Sigma| + np \right ].
+\end{equation*}
+
+As in the fixed-X case, we assume that the true model satisfies the restrictions, i.e. $R\beta_0=r$, and we obtain the following lemma.
+\begin{lemma}
+$\hat\sigma^2$ and $(\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0)$ are independent conditionally on $X$, and 
+\begin{equation*}
+\begin{aligned}
+E \left[ \text{Tr}(\hat \Sigma^{-1}\Sigma_0) \right] &= \frac{np}{n-p-1},\\
+%n\sigma_0^2 E_{X,y} \left[ \frac{1}{\hat\sigma^2} \right] &= n \frac{n}{n-p+m-2},\\
+E_{X,y}  \left [ (\hat \beta-\beta_0)^T \Sigma_0 (\hat \beta-\beta_0) \right ] &= \sigma_0^2 \frac{p-m}{n-p+m-1}.
+\end{aligned}
+\end{equation*}
+\label{thm:components_ekl_lr_randomx}
+\end{lemma}
+Lemma \ref{thm:components_ekl_lr_randomx} provides the components for calculating the expected optimism.
+\begin{theorem}
+\begin{equation*}
+E_{X,y}(\text{optR}_\text{KL}) = n \frac{n(n-1)}{(n-p+m-2)(n-p+m-1)} + n \frac{np}{n-p-1} - n(p+1).
+\end{equation*}
+\label{thm:EoptR_KL}
+\end{theorem}
+
+Consequently, 
+\begin{equation*}
+\begin{aligned}
+\widehat{\text{ErrR}}_\text{KL} &= \text{errR}_\text{KL} + E_{X,y} (\text{optR}_\text{KL}) \\
+&=n\log \left(\hat\sigma^2\right) + n \frac{n(n-1)}{(n-p+m-2)(n-p+m-1)} + n\log(2\pi)(p+1) + n\frac{np}{n-p-1} + n\log|\hat\Sigma|
+\end{aligned}
+\end{equation*}
+is an unbiased estimator of the testing error $E_{X,y}(\text{ErrR}_\text{KL})$. Note that the last three terms are free of the restrictions and only depend on $n$, $p$ and $X$. They are the same when we compare two models with different restrictions on $\beta$, and are thus irrelevant when comparing criteria for any two such models. Therefore, for the purpose of selecting a model with the best predictive performance, we define
+\begin{equation*}
+\text{RAICc}(R,r) = n\log \left(\frac{\text{RSS}(R,r)}{n}\right) + n \frac{n(n-1)}{(n-p+m-2)(n-p+m-1)}.
+\end{equation*}
+An equivalent form is
+\begin{equation*}
+\text{RAICc}(R,r) = \text{AICc}(R,r) + \frac{n(p-m)(p-m+1)}{(n-p+m-1)(n-p+m-2)}.
+\end{equation*} 
+For linear regression on a subset of predictors with size $k$, we are restricting $p-k$ coefficients to be zero. By substituting $m=p-k$ and $\hat\beta = \hat\beta(k)$ into the expression of $\text{RAICc}(R,r)$, we obtain the RAICc criterion for variable selection problem, i.e.
+\begin{equation*}
+\text{RAICc}(k) = n\log \left(\frac{\text{RSS}(k)}{n}\right) + n \frac{n(n-1)}{(n-k-2)(n-k-1)}.
+\end{equation*}
+
+\subsection{Squared error-based information criteria}
+We note from Theorem \ref{eq:EoptF_SE} that $E_y(\text{optF}_\text{SE})$ is independent of $X$. According to \citet[formula 6 and proposition 1]{rosset2020fixed}, $E_{X,y}(\text{optR}_\text{SE})$ can be decomposed into $E_y(\text{optF}_\text{SE})$ plus an excess bias term and an excess variance term. We calculate both terms for our estimator $\hat\beta$ and obtain the following theorem.
+\begin{theorem}
+\begin{equation*}
+E_{X,y}(\text{optR}_\text{SE}) = \sigma_0^2(p-m) \left( 2+ \frac{p-m+1}{n-p+m-1} \right).
+\end{equation*}
+\label{thm:EoptR_SE}
+\end{theorem}
+An immediate consequence is that
+\begin{equation*}
+\widehat{\text{ErrR}}_\text{SE} = \text{errR}_\text{SE} + E_{X,y} (\text{optR}_\text{SE}) = \text{RSS}(R,r) + \sigma_0^2(p-m) \left( 2+ \frac{p-m+1}{n-p+m-1} \right)
+\end{equation*}
+is an unbiased estimator of $E_{X,y}(\text{ErrR}_\text{SE})$. Using the OLS fit on all of the predictors to estimate $\sigma_0^2$, we have 
+\begin{equation*}
+\text{RC}_p(R,r) = \text{RSS}(R,r) + \frac{\text{RSS(p)}}{n-p}(p-m) \left(2+\frac{p-m+1}{n-p+m-1}\right).
+\end{equation*}
+An alternative estimate of $\sigma_0^2$ is $\text{RSS}(R,r)/(n-p+m)$, which yields 
+\begin{equation*}
+\text{S}_p(R,r) = \text{RSS}(R,r)\frac{n(n-1)}{(n-p+m)(n-p+m-1)}.
+\end{equation*}
+For the variable selection problem, by substituting $m=p-k$ into the expressions of RC$_p$ and S$_p$, we obtain the existing definitions of them, i.e. RC$_p$(k) and S$_p$(k) given in \eqref{eq:rcp_subsetselection} and \eqref{eq:sp_subsetselection}, respectively. 

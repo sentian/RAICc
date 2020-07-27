@@ -1,0 +1,135 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{multicol,multienum}
+\usepackage{latexsym,amssymb,amsmath}
+\usepackage{indentfirst}
+\usepackage{cases}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{mathrsfs}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{CJK}
+\usepackage{url}
+\usepackage[font={sf,bf},textfont=md]{caption}
+\usepackage{animate}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{interval}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{bm}
+\usepackage{thmtools, thm-restate}
+\usepackage{bbm}
+\usepackage{verbatim}
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{algorithm}
+\usepackage{enumitem}
+\usepackage{natbib}
+\usepackage[noend]{algpseudocode}
+\usepackage{bbding}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{bigstrut}
+\usepackage[stable]{footmisc}
+\usepackage{multibib}
+\usepackage{pgffor}
+\newcites{online}{References}
+
+
+\pdfminorversion=4
+
+\addtolength{\oddsidemargin}{-.7in}%
+\addtolength{\evensidemargin}{-.7in}%
+\addtolength{\textwidth}{1.4in}%
+\addtolength{\textheight}{0.8in}%
+\addtolength{\topmargin}{-0.8in}%
+
+\newcommand{\irow}[1]{% inline row vector
+  \big(\begin{smallmatrix}#1\end{smallmatrix}\big)%
+}
+
+\newcommand{\beginsupplement}{%
+        \setcounter{table}{0}
+        \renewcommand{\thetable}{S\arabic{table}}%
+        \setcounter{figure}{0}
+        \renewcommand{\thefigure}{S\arabic{figure}}%
+        \setcounter{page}{0}
+        \renewcommand{\theequation}{S.\arabic{equation}}%
+        \setcounter{equation}{0}
+     }
+
+\newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}} 
+%\newtheorem{theorem}{Theorem}[section]
+\newtheorem{theorem}{Theorem}
+%\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}{Lemma}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\N}{{\mathbb{N}}}  % the natural numbers
+\newcommand{\Z}{{\mathbb{Z}}}  % the integers
+\newcommand{\Q}{{\mathbb{Q}}} % the rational numbers
+\newcommand{\R}{{\mathbb{R}}}  % the real numbers
+\newcommand{\C}{{\mathbb{C}}}  % the complex numbers
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+
+
+
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+
+\beginsupplement
+\appendix
+\pagenumbering{arabic}
+\begin{center}
+\textbf{\large Complete Simulation Results \\
+Selection of Regression Models under Linear Restrictions for Fixed and Random Designs}
+
+Sen Tian, Clifford M. Hurvich, Jeffrey S. Simonoff
+\end{center}
+
+\begin{itemize}
+      \item Variable selection
+      \begin{itemize}
+            \item Fixed-X
+            \begin{itemize}
+                  \item Sparse-Ex1: Figure S1-S27
+                  \item Sparse-Ex2: Figure S28-S54
+                  \item Dense-Ex1: Figure S55-S81
+            \end{itemize}
+            \item Random-X
+            \begin{itemize}
+                  \item Sparse-Ex1: Figure S82-S108
+                  \item Sparse-Ex2: Figure S109-S135
+                  \item Dense-Ex1: Figure S136-S162
+            \end{itemize}
+      \end{itemize}
+      \item General restriction
+      \begin{itemize}
+            \item Fixed-X
+            \begin{itemize}
+                  \item Ex1: Figure S163-S180
+                  \item Ex2: Figure S181-S198
+                  \item Ex3: Figure S199-S216
+            \end{itemize}
+            \item Random-X
+            \begin{itemize}
+                  \item Ex1: Figure S217-S234
+                  \item Ex2: Figure S235-S252
+                  \item Ex3: Figure S253-S270
+            \end{itemize}
+      \end{itemize}
+\end{itemize}
+
+\input{plot_supplement_subsetselection.tex}
+\input{plot_supplement_generalrestriction.tex}
+
+\end{document}

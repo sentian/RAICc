@@ -1,0 +1,475 @@
+%!TEX root = ms.tex
+\beginsupplement
+\appendix
+\pagenumbering{arabic}
+\begin{center}
+\textbf{\large Supplemental Materials \\
+Selection of Regression Models under Linear Restrictions for Fixed and Random Designs}
+
+Sen Tian, Clifford M. Hurvich, Jeffrey S. Simonoff
+\end{center}
+
+This document provides theoretical details of the theorems and lemmas in the paper. The complete simulation results can be viewed online\footnote{https://drive.google.com/file/d/1Arh00mfRl9-L0-sFeq558LSU-CbNYM4b/view?usp=sharing}.
+
+
+
+
+\section{Proof of Lemma \ref{thm:components_ekl_lr_fixedx}}
+\begin{proof}
+As is well known \citeponline[see, e.g.,][p.~122]{greene2003econometric},
+\begin{equation}
+  n\hat\sigma^2 = \lVert y-X\hat{\beta} \rVert_2^2 \sim \sigma_0^2 \chi^2(n-p+m),
+  \label{eq:dist_rss}
+\end{equation}
+and 
+\begin{equation}
+\begin{aligned}
+E_y\left(\hat{\beta} - \beta_0 \right) &= 0,\\
+\text{Cov}_y\left(\hat{\beta} - \beta_0 \right) &= E\left[\left(\hat{\beta} - \beta_0 \right)\left(\hat{\beta} - \beta_0 \right)^T \right]\\
+&= \sigma_0^2 \left\{ (X^T X)^{-1} - (X^T X)^{-1}R^T\left[ R(X^T X)^{-1}R^T \right]^{-1} R(X^T X)^{-1} \right\}.
+\end{aligned}
+\label{eq:dist_betahat}
+\end{equation}
+From \eqref{eq:dist_rss}, $1/\hat{\sigma}^2$ follows an inverse $\chi^2$ distribution and we have
+\begin{equation*}
+n \sigma_0^2 E_y\left[ \frac{1}{\hat{\sigma}^2} \right] = n\frac{n}{n-p+m-2}.
+\end{equation*}
+From \eqref{eq:dist_betahat}, we have
+\begin{equation*}
+E_y  \left [ (\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0) \right ] 
+= \text{Tr} \left[ X^T X \cdot \text{Cov}_y \left( \hat{\beta} - \beta_0 \right) \right] \\
+= \sigma_0^2 (p-m).
+\end{equation*}
+We next show that $\hat{\sigma}^2$ and $(\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0)$ are independent. Define an idempotent matrix $H_R=(X^T X)^{-1} R^T \left[ R (X^T X)^{-1} R^T \right]^{-1} R$. Recall that another two idempotent matrices are defined as $H=X(X^T X)^{-1} X^T$ and $H_Q = X H_R (X^T X)^{-1} X^T$, respectively. We have
+\begin{equation*}
+\begin{aligned}
+y-X\hat{\beta}^f &= (I-H)\epsilon,\\
+X\hat{\beta}^f - X\hat{\beta} &= XH_R(\hat{\beta}^f - \beta_0) =H_Q \epsilon,\\
+X\hat{\beta} - X\beta_0 &= X(I-H_R)(\hat{\beta}^f - \beta_0) = (H-H_Q) \epsilon,
+\end{aligned}
+\end{equation*}
+where we use the fact that $\hat{\beta}^f - \beta_0 = (X^T X)^{-1}X^T \epsilon$. Also since $HH_Q=H_QH=H_Q$, any two of the three idempotent symmetric matrices $I-H$, $H_Q$ and $H-H_Q$ have product zero. Then by the Craig's Theorem \citeponline{craig1943note} on the independence of two quadratic forms in a normal vector, 
+\begin{equation*}
+n\hat{\sigma}^2 = \lVert y-X\hat{\beta} \rVert_2^2 = \lVert y-X\hat{\beta}^f \rVert_2^2 + \lVert X\hat{\beta}^f - X\hat{\beta} \rVert_2^2 = \epsilon^T (I-H) \epsilon + \epsilon^T H_Q \epsilon
+\end{equation*}
+and
+\begin{equation*}
+\lVert X\hat{\beta} - X\beta_0 \rVert_2^2 = \epsilon^T (H-H_Q) \epsilon
+\end{equation*}
+are independent.
+\end{proof}
+
+
+\section{Proof of Theorem \ref{thm:EoptF_KL}}
+\begin{proof}
+By using Lemma \ref{thm:components_ekl_lr_fixedx}, the expected KL discrepancy can be derived as
+\begin{equation*}
+\begin{aligned}
+E_y [\text{ErrF}_\text{KL} ] 
+&= E_y \left\{ n \log (2\pi \hat\sigma^2) + \frac{1}{\hat\sigma^2}  (\hat\beta-\beta_0)^T X^T X (\hat\beta-\beta_0) + \frac{n\sigma_0^2}{\hat\sigma^2} \right\} \\
+&= E_y \left [ n\log (2\pi \hat \sigma^2)\right ] +  (p-m) \frac{n}{n-p+m-2} + n \frac{n}{n-p+m-2}\\
+&= E_y \left [ n\log (2\pi \hat \sigma^2) \right ] +  n \frac{n+p-m}{n-p+m-2}.
+\end{aligned}
+\end{equation*}
+Recall that
+\begin{equation*}
+\text{errF}_\text{KL} = n\log(2\pi \hat\sigma^2) + n.
+\end{equation*}
+The expected optimism is then
+\begin{equation*}
+E_y(\text{opF}_\text{KL}) = E_y[\text{ErrF}_\text{KL} ]  -  E_y[\text{errF}_\text{KL} ] = n \frac{n+p-m}{n-p+m-2} - n.
+\end{equation*}
+\end{proof}
+
+\section{Proof of Theorem \ref{thm:EoptF_SE}}
+\begin{proof}
+Using the expression of $\hat\beta$ \eqref{eq:betahat_sigmahatsq} and the definitions of $H$ and $H_Q$, we have
+\begin{equation*}
+\hat{\mu} = X\hat{\beta} = (H-H_Q)y + X(X^T X)^{-1} R^T \left[ R(X^TX)^{-1}R^T  \right]^{-1}r,
+\end{equation*}
+where the second term on the RHS is deterministic. Denote $h_i$ and ${h_Q}_i$ as the $i$-th rows of $H$ and $H_Q$, respectively. We then have
+\begin{equation*}
+\text{Cov}_y \left(\hat{\mu}_i, y_i \right) = \text{Cov}_y \left[ (h_i-{h_Q}_i)y, y_i  \right] = \text{Cov}_y \left[ (H_{ii}-{H_Q}_{ii})y_i, y_i \right] = \sigma_0^2 (H_{ii}-{H_Q}_{ii}).
+\end{equation*}
+Therefore, the covariance penalty \eqref{eq:EoptF_SE} can be derived as
+\begin{equation*}
+E_y (\text{optF}_\text{SE}) = 2 \sum_{i=1}^n \text{Cov}_y (\hat\mu_i,y_i) = 2 \sigma_0^2 \text{Tr}(H-H_Q) = 2 \sigma_0^2 (p-m).
+\end{equation*}
+\end{proof}
+
+\section{Proof of Lemma \ref{thm:components_ekl_lr_randomx}}
+\begin{proof}
+Since $x_i$ are iid $\mathcal{N}(0,\Sigma_0)$, $X^T X \sim \mathcal{W}(\Sigma_0, n)$ and $ (X^T X)^{-1} \sim \mathcal{W}^{-1} (\Sigma_0^{-1}, n)$, where $\mathcal{W}$ and $\mathcal{W}^{-1}$ denotes a Wishart and an inverse Wishart distribution with $n$ degrees of freedom, respectively. We have $E(X^T X) = n\Sigma_0$ and $E((X^T X)^{-1}) = \Sigma_0^{-1} / (n-p-1)$. Hence,
+\begin{equation*}
+  E \left[ \text{Tr}(\hat \Sigma^{-1}\Sigma_0) \right] = E \left[ \text{Tr} (n (X^T X)^{-1} \Sigma_0) \right] = n \text{Tr}\left[ E\left( (X^T X)^{-1} \right) \Sigma_0\right] = \frac{np}{n-p-1}.
+\end{equation*}
+Define $H_S = X(X^T X)^{-1}(I-H_R)^T \Sigma_0 (I-H_R) (X^T X)^{-1} X^T$. Conditionally on $X$, the random variable $\hat{\sigma}^2$ and 
+\begin{equation*}
+(\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0) = \epsilon^T H_S \epsilon
+\end{equation*}
+are independent by Craig's Theorem, since $H_S$ is symmetric and $H_S(I-H+H_Q)=0$. 
+\iffalse
+We also have
+\begin{equation*}
+n\sigma_0^2 E_{X,y} \left[ \frac{1}{\hat\sigma^2} \right] = n\sigma_0^2 E_X\left[ E_y \left(\frac{1}{\hat\sigma^2}\big| X \right) \right] = n \frac{n}{n-p+m-2},
+\end{equation*}
+where the last equality we use the result in Lemma \ref{thm:components_ekl_lr_fixedx}. 
+\fi
+In order to calculate $\displaystyle E_{X,y}  \left [ (\hat \beta-\beta_0)^T \Sigma_0 (\hat \beta-\beta_0) \right ]$, we transform the original basis of the problem. Denote $\tilde{R} = \big(\begin{smallmatrix}
+  R\\
+  R^c
+\end{smallmatrix}\big)$, a ($p \times p$) matrix, where the rows of $R^c$ span the orthogonal complement of the row space of $R$. Hence $\tilde{R}$ has full rank. The true model now becomes
+\begin{equation*}
+y = X \beta_0 + \epsilon = \tilde{X} \tilde{\beta}_0 + \epsilon,
+\end{equation*}
+with restrictions $\tilde{M} \tilde{\beta}_0 = r$ where $\tilde{X} = X \tilde{R}^T$, $\tilde{\beta}_0 = \tilde{R}^{T^{-1}} \beta_0$ and $\tilde{M} = R \tilde{R}^T$. The approximating model is
+\begin{equation*}
+y = X \beta + u = \tilde{X} \tilde{\beta} + u,
+\end{equation*}
+with restrictions $\tilde{M} \tilde{\beta} = r$ where $\tilde{\beta} = \tilde{R}^{T^{-1}} \beta$. Denote $\hat{\tilde{\beta}}^f = (\tilde{X}^T \tilde{X})^{-1}\tilde{X}^Ty$ as the OLS estimator in the regression of $y$ on $\tilde{X}$. The restricted MLE is then
+\begin{equation*}
+\hat{\tilde{\beta}} = \hat{\tilde{\beta}}^f - \left( \tilde{X}^T \tilde{X} \right)^{-1} \tilde{M}^T \left[ \tilde{M} (\tilde{X}^T \tilde{X})^{-1} \tilde{M}^T \right]^{-1} \left( \tilde{M} \hat{\tilde{\beta}}^f - r \right),
+\end{equation*}
+and it can be easily verified that $\hat{\tilde{\beta}} = \tilde{R}^{T^{-1}} \hat{\beta}$. Denote $\tilde{X}_m$ and $\tilde{X}_{p-m}$ as the matrices containing the first $m$ and last $p-m$ columns of $\tilde{X}$, respectively. Let $\hat{\tilde{\beta}}_{m}$ and $\hat{\tilde{\beta}}_{p-m}$ be column vectors consisting of the first $m$ and last $p-m$ entries in $\hat{\tilde{\beta}}$, respectively. Also let $\tilde{\beta}_{0,m}$ and $\tilde{\beta}_{0,p-m}$ be column vectors consisting of the first $m$ and last $p-m$ entries in $\tilde{\beta}_0$, respectively. By using the formula for the inverse of partitioned matrices and some algebra, it can be shown that (details are given in Supplemental Material Section \ref{sec:derivation_betahattilde})
+\begin{equation}
+\begin{aligned}
+\hat{\tilde{\beta}}_m &= \tilde{r},\\
+\hat{\tilde{\beta}}_{p-m} &= \left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \left( \tilde{X}_{p-m}^Ty - \tilde{X}_{p-m}^T\tilde{X}_{m}\tilde{r} \right),
+\end{aligned}
+\label{eq:betahat_tilde_partition}
+\end{equation}
+where $\tilde{r} = (R R^T)^{-1}r$. The restriction $\tilde{M}\tilde{\beta}_0=r$ results in $\tilde{\beta}_{0,m} = \tilde{r}$. We then have 
+\begin{equation*}
+\hat{\tilde{\beta}}_{p-m} - \tilde{\beta}_{0,p-m} = \left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m} ^T \epsilon,
+\end{equation*}
+and therefore 
+\begin{equation*}
+\hat{\tilde{\beta}}_{p-m} - \tilde{\beta}_{0,p-m} \big | \tilde{X} \sim \mathcal{N} \left(0, \sigma_0^2 \left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \right).
+\end{equation*}
+We also note that $\tilde{X}_{p-m} = X {R^c}^T$, and hence the rows $\tilde{x}_{p-m, i}$ of $\tilde{X}_{p-m}$ are independent and satisfy $\tilde{x}_{p-m, i} \sim \mathcal{N} \left( 0, R^c \Sigma_0 {R^c}^T \right)$. We then have that $\left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1}$ follows the inverse Wishart distribution $W^{-1}( R^c \Sigma_0 {R^c}^T, n)$. The expectation of the quadratic form can be derived as
+\begin{equation*}
+\begin{aligned}
+E_{X,y}  \left [ (\hat \beta-\beta_0)^T \Sigma_0 (\hat \beta-\beta_0) \right ] 
+&=  E_{\tilde{X},y}  \left [ \left( \hat{\tilde{\beta}} - \tilde{\beta}_0 \right)^T \tilde{R} \Sigma_0 \tilde{R}^T \left( \hat{\tilde{\beta}} - \tilde{\beta}_0 \right) \right ]\\
+&=  E_{\tilde{X}} \left\{ E  \left [ \left( \hat{\tilde{\beta}}_{p-m} - \tilde{\beta}_{0,p-m} \right)^T R^c \Sigma_0 {R^c}^T \left(\hat{\tilde{\beta}}_{p-m} - \tilde{\beta}_{0,p-m} \right) \Big| \tilde{X} \right ]  \right\}\\
+&= \sigma_0^2 \text{Tr} \left\{ R^c \Sigma_0 {R^c}^T E \left[ \left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \right] \right\} \\
+&= \sigma_0^2 \frac{p-m}{n-p+m-1}.
+\end{aligned}
+\end{equation*}
+
+\end{proof}
+
+
+\section{Proof of Theorem \ref{thm:EoptR_KL}}
+\begin{proof}
+The expected KL can be derived as
+\begin{equation*}
+\begin{aligned}
+&E_{X,y} (\text{ErrR}_\text{KL}) \\
+&= E_{X,y} \left [ n \log (2\pi \hat\sigma^2) + \frac{n}{\hat\sigma^2}  (\hat\beta-\beta_0)^T \Sigma_0 (\hat\beta-\beta_0) + \frac{n\sigma_0^2}{\hat\sigma^2} \right ] + E \left [np \log(2\pi) + n \log |\hat\Sigma| + n \text{Tr}(\hat\Sigma^{-1}\Sigma_{0}) \right] \\
+&= E_{X,y} \left [ n \log (2\pi \hat\sigma^2) \right ] + E_X \left[E\left(\frac{n}{\hat\sigma^2} \big | X \right)  E\left((\hat\beta-\beta_0)^T \Sigma_0 (\hat\beta-\beta_0) \big| X \right) + E\left(\frac{n\sigma_0^2}{\hat\sigma^2} \big| X \right) \right] + \\
+ & \qquad E \left [np \log(2\pi) + n \log |\hat\Sigma| + n \text{Tr}(\hat\Sigma^{-1}\Sigma_{0}) \right] \\
+&= E_{X,y} \left [ n\log (2\pi \hat \sigma^2) \right ] +  n \frac{n(n-1)}{(n-p+m-2)(n-p+m-1)} + E \left [ n\log |\hat \Sigma| \right ] + np\log(2\pi) + n \frac{np}{n-p-1},
+\end{aligned}
+\end{equation*}
+where the second equality is based on Lemma \ref{thm:components_ekl_lr_randomx} for the independence of $\hat\sigma^2$ and $(\hat\beta-\beta_0)^T \Sigma_0 (\hat\beta-\beta_0)$ conditionally on $X$, and in the last equality we use results from Lemma \ref{thm:components_ekl_lr_fixedx} and \ref{thm:components_ekl_lr_randomx}. Since the training error is
+\begin{equation*}
+\text{errR}_\text{KL} = -2\log L(\hat\beta,\hat\sigma^2,\hat\Sigma|X,y) = \left [ n \log (2\pi \hat\sigma^2) + n \right ] + \left [np \log(2\pi) + n \log |\hat\Sigma| + np \right ],
+\end{equation*}
+the expected optimism can be obtained as
+\begin{equation*}
+\begin{aligned}
+E_{X,y}(\text{optR}_\text{KL}) 
+&= E_{X,y}[\text{ErrR}_\text{KL} ]  -  E_{X,y}[\text{errR}_\text{KL} ] \\
+&= n \frac{n(n-1)}{(n-p+m-2)(n-p+m-1)} + n \frac{np}{n-p-1} - n(p+1).
+\end{aligned}
+\end{equation*}
+\end{proof}
+
+
+\section{Proof of Theorem \ref{thm:EoptR_SE}}
+\begin{proof}
+
+We first note from Theorem \ref{thm:EoptF_SE} that
+\begin{equation*}
+E_{X,y}(\text{optF}_\text{SE}) = E \left[ E(\text{optF}_\text{SE} | X ) \right] = 2 \sigma_0^2(p-m).
+\end{equation*}
+Based on formula 6 and proposition 1 in \citetonline{rosset2020fixed}, the expected optimism can be decomposed into 
+\begin{equation*}
+E_{X,y}(\text{optR}_\text{SE}) = E_{X,y}(\text{optF}_\text{SE}) + B^+ + V^+ = 2 \sigma_0^2(p-m) +  B^+ + V^+,
+\end{equation*}
+where $B^+$ and $V^+$ are the excess bias and excess variance of the fit. In particular, the excessed bias is defined as
+\begin{equation*}
+B^+ = E_{X,X^{(n)}} \big\lVert E_y( X^{(n)} \hat{\beta} \big | X, X^{(n)} ) - X^{(n)} \beta_0 \big\rVert_2^2 - E_X \big\lVert E( X \hat{\beta} \big | X ) - X \beta_0 \big\rVert_2^2.
+\end{equation*}
+Because of our assumption that the true model satisfies the restrictions, it follows that $\hat{\beta}$ is unbiased, and hence it is easy to see that $B^+=0$. Next, $V^+$ is defined as
+\begin{equation*}
+V^+ = E_{X,X^{(n)}} \left\{ \text{Tr} \left[ \text{Cov}\left( X^{(n)}\hat{\beta} \big | X, X^{(n)} \right) \right] \right\} - E_X \left\{ \text{Tr} \left[ \text{Cov}\left( X\hat{\beta} \big | X \right)  \right] \right\}.
+\end{equation*}
+The second term on the RHS is
+\begin{equation*}
+E_X \left\{  \text{Tr} \left[ \text{Cov} \left( X\hat{\beta} \big | X \right)  \right] \right\} = E_X \left\{ \text{Tr} \left[ \text{Cov} \left( (H-H_Q)y \big | X \right)  \right] \right\} = E\left\{  \sigma_0^2 \text{Tr} \left( H-H_Q  \right) \right\}= \sigma_0^2 (p-m).
+\end{equation*}
+The first term on the RHS is
+\begin{equation*}
+\begin{aligned}
+& E_{X,X^{(n)}} \text{Tr} \left[ \text{Cov}\left( X^{(n)}\hat{\beta} \big | X, X^{(n)} \right) \right] \\
+&= E_{X,X^{(n)}} \text{Tr} \left[ \text{Cov} \left( X^{(n)} (\hat{\beta} -\beta_0) \big | X, X^{(n)} \right) \right] \\
+&= \text{Tr} \left\{ E_X\left[ \text{Cov} \left( \hat{\beta} -\beta_0 \big | X \right) \right] E \left ({X^{(n)}}^T X^{(n)}) \right] \right\}\\
+&= n E_X \left\{ \text{Tr} \left[ \Sigma_0 \text{Cov} \left( \hat{\beta} - \beta_0  \big | X \right) \right] \right\}\\
+&= n E_X \left\{ E\left[ \left(\hat{\beta} - \beta_0 \right)^T \Sigma_0 \left(\hat{\beta} - \beta_0 \right) \big| X \right] \right\} \\
+&= n E_{X,y} \left[ \left(\hat{\beta} - \beta_0 \right)^T \Sigma_0 \left(\hat{\beta} - \beta_0 \right) \right]\\
+&= n \sigma_0^2 \frac{p-m}{n-p+m-1},
+\end{aligned}
+\end{equation*}
+where in the third equality we use the independence and identical distribution of $X$ and $X_0$, and $E(X^T X) = n\Sigma_0$, while in the last equality we use the result in Lemma \ref{thm:components_ekl_lr_randomx}. Combining the results together, we have
+\begin{equation*}
+V^+ = n\sigma_0^2 \frac{p-m}{n-p+m-1} - \sigma_0^2 (p-m) = \sigma_0^2\frac{(p-m)(p-m+1)}{n-p+m-1},
+\end{equation*}
+and 
+\begin{equation*}
+E_{X,y}(\text{optR}_\text{SE}) = 2\sigma_0^2 (p-m) + \sigma_0^2\frac{(p-m)(p-m+1)}{n-p+m-1}.
+\end{equation*}
+
+\end{proof}
+
+\section{Derivation of the expression of \texorpdfstring{$\hat{\tilde{\beta}}$}{} in \eqref{eq:betahat_tilde_partition} }
+\label{sec:derivation_betahattilde}
+Denote $\tilde{H}_m = \tilde{X}_m \left(\tilde{X}_m^T \tilde{X}_m \right)^{-1} \tilde{X}_m^T$ and $\tilde{H}_{p-m} = \tilde{X}_{p-m} \left(\tilde{X}_{p-m}^T \tilde{X}_{p-m}\right)^{-1} \tilde{X}_{p-m}^T$. Then the partitioned form of the matrix $\tilde{X}^T \tilde{X}$ is given by
+\begin{equation*}
+\begin{aligned}
+& \left(\tilde{X}^T \tilde{X}\right)^{-1} = 
+\begin{bmatrix}
+\tilde{X}_m^T \tilde{X}_m & \tilde{X}_m^T \tilde{X}_{p-m} \\
+\tilde{X}_{p-m}^T \tilde{X}_m & \tilde{X}_{p-m}^T \tilde{X}_{p-m}
+\end{bmatrix}^{-1} \\
+&=
+\begin{bmatrix}
+\left[\tilde{X}_m^T (I-\tilde{H}_{p-m}) \tilde{X}_m \right]^{-1} & - \left[\tilde{X}_m^T (I-\tilde{H}_{p-m}) \tilde{X}_m \right]^{-1} \tilde{X}_m^T \tilde{X}_{p-m} \left(\tilde{X}_{p-m}^T \tilde{X}_{p-m}\right)^{-1}\\
+- \left[\tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \right]^{-1} \tilde{X}_{p-m}^T \tilde{X}_m \left(\tilde{X}_m^T \tilde{X}_m \right)^{-1} & \left[\tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \right]^{-1}
+\end{bmatrix},
+\end{aligned}
+\end{equation*}
+and the partitioned form of $\hat{\tilde{\beta}}^f$ is given by
+\begin{equation*}
+\begin{aligned}
+\hat{\tilde{\beta}}^f &= \left(\tilde{X}^T \tilde{X}\right)^{-1} \tilde{X}^T y \\
+&= 
+\begin{bmatrix}
+\left[\tilde{X}_m^T \left(I-\tilde{H}_{p-m}\right) \tilde{X}_m \right]^{-1} \left( \tilde{X}_m^T y - \tilde{X}_m^T \tilde{H}_{p-m} y \right) \\
+\left[\tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \right]^{-1} \left( \tilde{X}_{p-m}^T y - \tilde{X}_{p-m}^T \tilde{H}_m y \right)
+\end{bmatrix}.
+\end{aligned}
+\end{equation*}
+We also have 
+\begin{equation*}
+\begin{aligned}
+& \left[\tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \right]^{-1} \tilde{X}_{p-m}^T \tilde{H}_m \left(I_n - \tilde{H}_{p-m}\right)\tilde{X}_m \\
+&= \left[\tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \right]^{-1} \left( \tilde{X}_{p-m}^T \tilde{X}_m - \tilde{X}_{p-m}^T \tilde{H}_m\tilde{H}_{p-m}\tilde{X}_m \right)  \\
+&= \left[\tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \right]^{-1} \tilde{X}_{p-m}^T \left(I-\tilde{H}_m\right) \tilde{X}_{p-m} \left(\tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m}^T \tilde{X}_m  \\
+&= \left(\tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m}^T \tilde{X}_m.
+\end{aligned}
+\end{equation*}
+Using this property and $\tilde{M} = R \tilde{R}^T = \big(\begin{smallmatrix}
+  RR^T & 0
+\end{smallmatrix}\big)$, we have
+\begin{equation*}
+\begin{aligned}
+\left(\tilde{X}^T \tilde{X}\right)^{-1} \tilde{M}^T \left[ \tilde{M} \left( \tilde{X}^T \tilde{X} \right)^{-1} \tilde{M}^T \right]^{-1} &= 
+\begin{bmatrix}
+(RR^T)^{-1} \\
+-\left(\tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m}^T \tilde{X}_m (RR^T)^{-1}
+\end{bmatrix},
+ \\ 
+I_p - \left(\tilde{X}^T \tilde{X}\right)^{-1} \tilde{M}^T \left[ \tilde{M} \left( \tilde{X}^T \tilde{X} \right)^{-1} \tilde{M}^T \right]^{-1} \tilde{M} &= 
+\begin{bmatrix}
+0 & 0\\
+\left(\tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m}^T \tilde{X}_m & I_{p-m}
+\end{bmatrix}.
+\end{aligned}
+\end{equation*}
+Therefore, \eqref{eq:betahat_tilde_partition} can be derived as
+\begin{equation*}
+\begin{aligned}
+\hat{\tilde{\beta}} &= \left\{I_p - \left(\tilde{X}^T \tilde{X}\right)^{-1} \tilde{M}^T \left[ \tilde{M} \left( \tilde{X}^T \tilde{X} \right)^{-1} \tilde{M}^T \right]^{-1} \tilde{M} \right\}\hat{\tilde{\beta}}^f + \left\{\left(\tilde{X}^T \tilde{X}\right)^{-1} \tilde{M}^T \left[ \tilde{M} \left( \tilde{X}^T \tilde{X} \right)^{-1} \tilde{M}^T \right]^{-1} \right\}r\\
+&=
+\begin{bmatrix}
+\tilde{r}\\
+\left(\tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m}^T \left(y - \tilde{X}_m \tilde{r}\right)
+\end{bmatrix}.
+\end{aligned}
+\end{equation*}
+
+
+\iffalse
+\section{\texorpdfstring{$\hat{\beta}$}{} for \texorpdfstring{$R=[0, I_{p-k}]$}{} }
+We show that for $R=[0, I_{p-k}]$, $\hat{\beta}$ \eqref{eq:betahat} is the least squares coefficient vector of $y$ upon $X_k$ where $X_k$ involves the first $k$ columns of $X$. 
+
+We simplify the notations. Denote $R=[0, I_2]$ where $0$ is an $p_2 \times p_1$ matrix and $I_2$ is an $p_2 \times p_2$ matrix, respectively. Also denote $X=[X_1, X_2]$ where $X_1$ is an $n \times p_1$ matrix and $X_2$ is an $n \times p_2$ matrix, respectively. The corresponding hat matrices are $H_1 = X_1 (X_1^T X_1)^{-1} X_1^T$ and $H_2 = X_2 (X_2^T X_2)^{-1} X_2^T$. 
+
+First note that the partitioned form of the matrix $X^T X$ is given by
+\begin{equation}
+\begin{aligned}
+(X^T X)^{-1} &= 
+\begin{bmatrix}
+X_1^T X_1 & X_1^T X_2 \\
+X_2^T X_1 & X_2^T X_2
+\end{bmatrix}^{-1} \\
+&=
+\begin{bmatrix}
+[X_1^T (I-H_2) X_1 ]^{-1} & - [X_1^T (I-H_2) X_1 ]^{-1} X_1^T X_2 (X_2^T X_2)^{-1}\\
+- [X_2^T (I-H_1) X_2 ]^{-1} X_2^T X_1 (X_1^T X_1)^{-1} & [X_2^T (I-H_1) X_2 ]^{-1}
+\end{bmatrix}.
+\end{aligned}
+\end{equation}
+Then we have
+\begin{equation*}
+I - H_R=
+I - (X^T X)^{-1}(R^T X_2^T (I-H_1) X_2 R) =
+\begin{bmatrix}
+I_1 & [X_1^T (I-H_2) X_1 ]^{-1} X_1^T H_2 (I-H_1) X_2 \\
+0 & 0
+\end{bmatrix},
+\end{equation*}
+and
+\begin{equation*}
+z = (X^T X)^{-1} X^T y = 
+\begin{bmatrix}
+[X_1^T (I-H_2) X_1 ]^{-1} (X_1^T y - X_1^T H_2 y)\\
+[X_2^T (I-H_1) X_2 ]^{-1} (X_2^T y - X_2^T H_1 y)
+\end{bmatrix}.
+\end{equation*}
+Also it can be easily verified that $HH_1=H_1H=H_1$, $HH_2=H_2H=H_2$, and
+\begin{equation*}
+(I-H_1)X_2 [X_2^T (I-H_1) X_2 ]^{-1} X_2^T (I-H_1) = H - H_1.
+\end{equation*}
+Therefore, we have
+\begin{equation*}
+\begin{aligned}
+  \hat{\beta} &= z + (X^T X)^{-1} R^T ( R(X^T X)^{-1} R^T)^{-1} (r-R z) \\
+  &= \left[ I
+   - (X^T X)^{-1}(R^T X_2^T (I-H_1) X_2 R) \right] z\\
+  &= [X_1^T (I-H_2) X_1 ]^{-1} X_1^T \left\{ I-H_2+H_2(I-H_1)X_2 [X_2^T (I-H_1) X_2 ]^{-1} X_2^T (I-H_1)  \right\}y \\
+  &= [X_1^T (I-H_2) X_1 ]^{-1} X_1^T \left\{ I-H_2H_1 \right\}y\\
+  &= (X_1^T X_1)^{-1} X_1^T y,
+\end{aligned}
+\end{equation*}
+which is the least squares estimates on $X_1$.
+
+\section{Derivation of \texorpdfstring{\eqref{eq:firstterm_ekl_lr}}{} for \texorpdfstring{$R=[0, I_{p-k}]$}{}}
+First note that
+\begin{equation*}
+\begin{aligned}
+&[X_1^T (I-H_2) X_1 ]^{-1} - [X_1^T (I-H_2) X_1 ]^{-1} X_1^T H_2 (I-H_1) X_2 [X_2^T (I-H_1) X_2 ]^{-1} X_2^T X_1 (X_1^T X_1)^{-1}\\
+&= [X_1^T (I-H_2) X_1 ]^{-1} \left( I - X_1^T H_2 X_1 (X_1^T X_1)^{-1} \right),\\
+&= (X_1^T X_1)^{-1} 
+\end{aligned}
+\end{equation*}
+Then from the partition of $(X^T X)^{-1}$ and the expression of $I-H_R$ shown in the above Section, it is easy to have
+\begin{equation*}
+(I-H_R) (X^T X)^{-1} = 
+\begin{bmatrix}
+(X_1^T X_1)^{-1}  & 0\\
+0 & 0
+\end{bmatrix}.
+\end{equation*}
+Therefore,
+\begin{equation*}
+\begin{aligned}
+E_0  \left [ (\hat \beta-\beta_0)^T \Sigma_0 (\hat \beta-\beta_0) \right ] &= E_0 \left\{ E_0 \left [ (\hat \beta-\beta_0)^T \Sigma_0 (\hat \beta-\beta_0) \Big| X \right ]  \right\},\\
+&= \sigma_0^2 \text{Tr} \left[ \Sigma_0 E_0 \left\{ (I-H_R) (X^T X)^{-1} \right\} \right], \\
+&= \sigma_0^2 \frac{p_1}{n-p_1-1}.
+\end{aligned}
+\end{equation*}
+
+\section{Cochrane's Theorem}
+Let $\eta \sim \mathcal{N}(0, I)$ and let $H=\sum H_i$ be a sum of $k$ symmetric matrices with $\text{rank}(H)$=r and $\text{rank}(H_i)=r_i$ such that $H_i=H_i^2$ and $H_iH_j=0$ when $i \ne j$. Then $\eta^T H_i \eta \sim \chi^2(r_i)$, $i=1,\cdots,k$ are independent chi-square variates such that $\sum \eta^T H_i \eta = \eta^T H \eta \sim \chi^2(r)$ with $r=\sum r_i$.
+
+
+
+
+\section{Using Adkin's result to derive \texorpdfstring{\eqref{eq:thirdterm_ekl_lr_randomx}}{} for any \texorpdfstring{$R$}{}}
+
+\textcolor{red}{Unfinished}
+
+The problem we have is 
+\begin{equation}
+y = X\beta_0 + \epsilon, \quad \text{s.t. } R\beta_0=r,
+\end{equation}
+where $R$ is a $m$ by $p$ matrix. From the eigen-decomposition of $X^T X$, we have $X^T X = P \Lambda P^T$. Denote $V = P \Lambda^{1/2} P^T$ and $V^{-1} = P \Lambda^{-1/2} P^T$. Also denote $H_1 = R V^{-1}$, and an orthogonal matrix $Q$ that contains the characteristic vectors of $H_1 ^T (H_1 H_1^T)^{-1} H_1$. Hence, $Z = XV^{-1}Q$ has orthonormal columns. Adkins shows that the problem can be transformed to
+\begin{equation}
+y = Z\theta_0 + \epsilon, \quad \text{s.t. } [I_m \quad 0]\theta_0=h,
+\end{equation}
+where $h$ is some constant. 
+
+Denote $\hat{\theta}^f = Z^T y$ as the OLS estimator, 
+\begin{equation}
+\begin{aligned}
+( \hat{\beta} - \beta_0 )^T \Sigma_0 ( \hat{\beta} - \beta_0 ) 
+&= ( \hat{\theta} - \theta_0 )^T Q^T V^{-1} \Sigma_0 V^{-1} Q ( \hat{\theta} - \theta_0 ) \\
+&= ( \hat{\theta}^f_{p-m} - \theta_{0,p-m} )^T [0 \quad I_{p-m}] Q^T V^{-1} \Sigma_0 V^{-1} Q [0 \quad I_{p-m}]^T ( \hat{\theta}^f_{p-m} - \theta_{0,p-m} ),
+\end{aligned}
+\end{equation}
+where $\hat{\theta}^f_{p-m}$ is the last $p-m$ elements of $\hat{\theta}^f$ and $\theta_{0,p-m}$ is the last $p-m$ elements of $\theta_0$. Since $\hat{\theta}^f_{p-m} - \theta_{0,p-m} \sim \mathcal{N}(0, \sigma_0^2 I_{p-m})$, we have
+\begin{equation}
+\begin{aligned}
+E_0 \left\{ ( \hat{\beta} - \beta_0 )^T \Sigma_0 ( \hat{\beta} - \beta_0 )  \right\} 
+&= E_0 \left\{ E_0 \left[ ( \hat{\beta} - \beta_0 )^T \Sigma_0 ( \hat{\beta} - \beta_0 ) | X \right]  \right\},\\
+&= \sigma_0^2 E_0\left\{ \text{Tr}\left( [0 \quad I_{p-m}] Q^T V^{-1} \Sigma_0 V^{-1} Q [0 \quad I_{p-m}]^T \right) \right\}
+\end{aligned}
+\end{equation}
+Here $Q$ and $V$ are random. I verify in simulations that the matrix $E_0 ([0 \quad I_{p-m}] Q^T V^{-1} \Sigma_0 V^{-1} Q [0 \quad I_{p-m}]^T)$ is a diagonal matrix.
+
+\fi
+
+\bibliographystyleonline{chicago}
+\bibliographyonline{raicc.bib}
+
+\iffalse
+\input{tables/supplement/fixedx/subset_selection/Sparse-Ex1_n40.tex}
+\input{tables/supplement/fixedx/subset_selection/Sparse-Ex1_n200.tex}
+\input{tables/supplement/fixedx/subset_selection/Sparse-Ex1_n1000.tex}
+\input{tables/supplement/fixedx/subset_selection/Sparse-Ex2_n40.tex}
+\input{tables/supplement/fixedx/subset_selection/Sparse-Ex2_n200.tex}
+\input{tables/supplement/fixedx/subset_selection/Sparse-Ex2_n1000.tex}
+%\input{tables/supplement/fixedx/subset_selection/Sparse-Ex3_n40.tex}
+%\input{tables/supplement/fixedx/subset_selection/Sparse-Ex3_n200.tex}
+%\input{tables/supplement/fixedx/subset_selection/Sparse-Ex3_n1000.tex}
+%\input{tables/supplement/fixedx/subset_selection/Sparse-Ex4_n40.tex}
+%\input{tables/supplement/fixedx/subset_selection/Sparse-Ex4_n200.tex}
+%\input{tables/supplement/fixedx/subset_selection/Sparse-Ex4_n1000.tex}
+\input{tables/supplement/fixedx/subset_selection/Dense-Ex1_n40.tex}
+\input{tables/supplement/fixedx/subset_selection/Dense-Ex1_n200.tex}
+\input{tables/supplement/fixedx/subset_selection/Dense-Ex1_n1000.tex}
+%\input{tables/supplement/fixedx/subset_selection/Dense-Ex2_n40.tex}
+%\input{tables/supplement/fixedx/subset_selection/Dense-Ex2_n200.tex}
+%\input{tables/supplement/fixedx/subset_selection/Dense-Ex2_n1000.tex}
+
+\clearpage
+\input{tables/supplement/randomx/subset_selection/Sparse-Ex1_n40.tex}
+\input{tables/supplement/randomx/subset_selection/Sparse-Ex1_n200.tex}
+\input{tables/supplement/randomx/subset_selection/Sparse-Ex1_n1000.tex}
+\input{tables/supplement/randomx/subset_selection/Sparse-Ex2_n40.tex}
+\input{tables/supplement/randomx/subset_selection/Sparse-Ex2_n200.tex}
+\input{tables/supplement/randomx/subset_selection/Sparse-Ex2_n1000.tex}
+%\input{tables/supplement/randomx/subset_selection/Sparse-Ex3_n40.tex}
+%\input{tables/supplement/randomx/subset_selection/Sparse-Ex3_n200.tex}
+%\input{tables/supplement/randomx/subset_selection/Sparse-Ex3_n1000.tex}
+%\input{tables/supplement/randomx/subset_selection/Sparse-Ex4_n40.tex}
+%\input{tables/supplement/randomx/subset_selection/Sparse-Ex4_n200.tex}
+%\input{tables/supplement/randomx/subset_selection/Sparse-Ex4_n1000.tex}
+\input{tables/supplement/randomx/subset_selection/Dense-Ex1_n40.tex}
+\input{tables/supplement/randomx/subset_selection/Dense-Ex1_n200.tex}
+\input{tables/supplement/randomx/subset_selection/Dense-Ex1_n1000.tex}
+%\input{tables/supplement/randomx/subset_selection/Dense-Ex2_n40.tex}
+%\input{tables/supplement/randomx/subset_selection/Dense-Ex2_n200.tex}
+%\input{tables/supplement/randomx/subset_selection/Dense-Ex2_n1000.tex}
+
+\clearpage
+\input{tables/supplement/fixedx/general_restriction/Ex1.tex}
+\input{tables/supplement/fixedx/general_restriction/Ex2.tex}
+\input{tables/supplement/fixedx/general_restriction/Ex3.tex}
+\input{tables/supplement/randomx/general_restriction/Ex1.tex}
+\input{tables/supplement/randomx/general_restriction/Ex2.tex}
+\input{tables/supplement/randomx/general_restriction/Ex3.tex}
+\fi

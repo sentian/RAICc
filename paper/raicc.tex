@@ -1,0 +1,559 @@
+\documentclass[11pt]{article}
+\usepackage{amssymb,amsmath,latexsym,fullpage,tabularx}
+\usepackage{epsfig,enumerate}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+%\input{amsvect.tex}
+%\numberwithin{equation}
+%\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+%\renewcommand{\thefigure}{\arabic{figure}}
+%\renewcommand{\thetable}{\arabic{table}}
+\renewcommand{\baselinestretch}{1.9}
+%\parskip 0.01in
+
+\setcounter{equation}{0}
+%\setcounter{chapter}{0}
+
+
+
+\newcommand{\qed}{\hfill $\fbox{}$}  \def\M{\hspace*{1.5em}}
+
+\newcommand{\ls}[1]
+{\dimen0=\fontdimen6\the\font \lineskip=#1\dimen0
+\advance\lineskip.5\fontdimen5\the\font \advance\lineskip-\dimen0
+\lineskiplimit=.9\lineskip \baselineskip=\lineskip
+\advance\baselineskip\dimen0 \normallineskip\lineskip
+\normallineskiplimit\lineskiplimit \normalbaselineskip\baselineskip
+\ignorespaces }
+
+\newtheorem{Thm}{Theorem}
+\newtheorem{Lem}{Lemma}
+\newtheorem{Prop}{Proposition}
+\newtheorem{Cor}{Corollary}
+\newtheorem{defn}{Definition}
+\newtheorem{Remark}{Remark}
+\newtheorem{Example}{Example}
+
+\begin{document}
+
+
+{\renewcommand{\baselinestretch}{1.5}
+\begin{titlepage}
+    \title{
+    \vspace{0in}
+    \Large \textbf {$AICc$ with Random $X$}
+    \vspace{.05in}}
+    \date{\normalsize \today}
+\end{titlepage}
+\maketitle
+
+\section{Derivation}
+Suppose that $X$ is a random $n \times p$ matrix, write
+\[
+X=
+\left(
+    \begin{array}{c}
+      x_1^T \\
+      x_2^T \\
+      \vdots \\
+      x_n^T \\
+    \end{array}
+  \right) \,\,\, ,
+\]
+and assume that $E(x_ix_i^T) = \Sigma_0$. We assume further that $\{x_i\}_{i=1}^n$ are $iid$ multivariate normal with mean $0$ and covariance matrix $\Sigma_0$.
+The true model is
+\begin{equation}
+y=X \beta_0 + \epsilon ,
+\label{eq:truemodel}
+\end{equation}
+where $y$ is $(n \times 1)$, $\beta_0$ is $(p \times 1)$ (possibly having zero entries), and the $(n \times 1)$ vector $\epsilon$ is independent of $X$, with $\{\epsilon_i\}_{i=1}^n \stackrel {iid} {\sim} N(0,\sigma_0^2)$.
+Let $S$ be a subset of $\{1,2,\cdots,p\}$ of size $k$, where $k \leq p$. Define $X_S$ to be the $(n \times k)$ sub-matrix of $X$ containing the columns (in increasing order) corresponding to the subset $S$. Write
+\[
+X_S=
+\left(
+    \begin{array}{c}
+      x_{1,S}^T \\
+      x_{2,S}^T \\
+      \vdots \\
+      x_{n,S}^T \\
+    \end{array}
+  \right) \,\,\, ,
+\]
+so that $X_S^T X_S = \sum_{i=1}^n x_{i,S} x_{i,S}^T$. Define $\Sigma_{S,0} = E_0[x_{i,S} \, x_{i,S}^T]$. Note that $\Sigma_{S,0}$ is a sub-matrix of $\Sigma_0$.
+
+The approximating model corresponding to the subset $S$ is
+\[
+y=X_S \beta + u \,\,\, ,
+\]
+where $\beta$ is $(k \times 1)$, the $(n \times 1)$ vector $u$ is independent of $X$, with $\{u_i\}_{i=1}^n \stackrel {iid} {\sim} N(0,\sigma^2)$, and
+the $x_{i,S}$ are independent multivariate normal with mean $0$ covariance matrix $\Sigma_S$, and density $g$.
+The parameter vector is $\theta = (\beta,\sigma^2,\Sigma_S)$. Let $f(y_i,x_{i,S}|\theta)$ denote the multivariate normal density for $y_i$ and $x_{i,S}$. Let $f(y_i|x_{i,S},\theta)$ denote the conditional density for $y_i$ given $x_{i,S},\theta$. Let $L(\theta|{X_S,y})$ denote the likelihood function for $\theta$. We have
+
+\[
+-2 \log L(\theta|X_S,y) = -2 \sum_{i=1}^n \log f(y_i,x_{i,S}|\theta) = -2 \sum_{i=1}^n [\log f(y_i|x_{i,S},\theta) + \log g(x_{i,S}|\Sigma_S)]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} || y-X_S\beta||_2^2 \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + \sum_{i=1}^n x_{i,S}^T \Sigma_S^{-1} x_{i,S} \right ]
+\]
+so that
+\[
+\hat \beta = \arg \min_\beta ||y-X_S\beta||_2^2 = (X_S^TX_S)^{-1}X_S^T y \,\,\, ,
+\]
+\[
+\hat \sigma^2 = \frac{1}{n} ||y-X_S \hat \beta||^2 \,\,\,
+\]
+and
+\[
+\hat \Sigma_S = \frac{1}{n} \sum_{i=1}^n x_{i,S} \, x_{i,S}^T = \frac{1}{n} X_S^T X_S \,\,\, .
+\]
+Similarly,
+\[
+\hat \Sigma = \frac{1}{n} \sum_{i=1}^n x_i \, x_i^T = \frac{1}{n} X^T X \,\,\, .
+\]
+For any subset $S$ and any $\beta \in R^k$, define $\beta_S$ to be the $(p \times 1)$ vector obtained from $\beta$ by inserting zeros in such a way that the $i^{th}$ entry of
+$\beta_S$ is zero if $i$ is not in $S$. Note that $X_S \beta = X \beta_S$.
+
+The $KL$ discrepancy is
+\[
+\Delta (\theta) = E_0 [-2 \log L(\theta | X_S,y)]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} E_0 || y-X_S\beta||_2^2 \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + E_0 \sum_{i=1}^n x_{i,S}^T \Sigma_S^{-1} x_{i,S} \right ]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} E_0 || X\beta_0-X \beta_S+\epsilon||_2^2 \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + E_0 \sum_{i=1}^n x_{i,S}^T \Sigma_S^{-1} x_{i,S} \right ]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{n}{\sigma^2}  (\beta_S-\beta_0)^T \Sigma_0 (\beta_S-\beta_0) + \frac{n\sigma_0^2}{\sigma^2} \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + n Tr(\Sigma_S^{-1}\Sigma_{S,0}) \right ] \,\,\, .
+\]
+For any subset $S$ and any $\beta \in R^k$, define $\hat \beta_S$ to be the $(p \times 1)$ vector obtained from $\hat \beta$ by inserting zeros in such a way that the $i^{th}$ entry of
+$\hat \beta_S$ is zero if $i$ is not in $S$. Note that $X_S \hat \beta = X \hat \beta_S$.
+
+The expected $KL$ discrepancy is
+\begin{equation}
+\begin{aligned}
+E_0 [\Delta (\hat \theta)] &=  E_0 \left [ n\log (2\pi \hat \sigma^2) + \frac{n}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) + \frac{n\sigma_0^2}{\hat \sigma^2} \right ], \\
+&+E_0 \left [nk \log(2\pi) + n\log |\hat \Sigma_S| + n Tr(\hat \Sigma_S^{-1}\Sigma_{S,0}) \right ].
+\end{aligned}
+\label{eq:ekl}
+\end{equation}
+
+First note that since $x_{i,S}$ are iid from $\mathcal{N}(0,\Sigma_{S,0})$, $X_S^T X_S \sim \mathcal{W}(\Sigma_{S,0}, n)$ and $ (X_S^T X_S)^{-1} \sim \mathcal{W}^{-1} (\Sigma_{S,0}^{-1}, n)$, where $\mathcal{W}$ and $\mathcal{W}^{-1}$ denotes a Wishart and an inverse Wishart distribution with $n$ degrees of freedom. We have $E_0(X_S^T X_S) = n\Sigma_{S,0}$ and $E_0 ((X_S^T X_S)^{-1}) = \Sigma_{S,0}^{-1} / (n-k-1)$. Hence,
+$$
+  E_0 \left[ Tr(\hat \Sigma_S^{-1}\Sigma_{S,0}) \right] = E_0 \left[ Tr(n (X_S^T X_S)^{-1} \Sigma_{S,0}) \right] = n Tr\left[ E_0\left( (X_S^T X_S)^{-1} \right) \Sigma_{S,0}\right] = \frac{nk}{n-k-1}.
+$$
+Also, we note that
+\[
+E_0 \left [ \frac{1}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) \right ]
+\]
+\[
+= E_0 \left \{ E_0 \left [ \frac{1}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) |X \right ] \right \} \,\,\, .
+\]
+If the approximating model contains the operating model, then conditionally on $X$, the quadratic form
+\[
+(\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0)
+\]
+is independent of $\hat \sigma^2$, and
+\[
+E_0 \left [ (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) |X \right ] = \sigma_0^2 Tr(\Sigma_{S,0} (X_S^TX_S)^{-1} ) =
+n^{-1} \sigma_0^2 Tr(\Sigma_{S,0} \hat \Sigma_S^{-1} ) \,\,\, .
+\]
+Also, we note that $n\hat{\sigma}^2 / \sigma_0^2$ is $\chi^2_{n-k}$, 
+$$
+E_0\left[ \frac{1}{\hat{\sigma}^2} | X\right] = \frac{1}{\sigma_0^2} \frac{n}{n-k-2}.
+$$
+Therefore,
+$$
+E_0 \left [ \frac{1}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) \right ] = \frac{1}{n-k-2} E_0\left[ Tr(\hat \Sigma_S^{-1}\Sigma_{S,0}) \right] = \frac{nk}{(n-k-1)(n-k-2)}.
+$$
+Thus,
+$$
+\begin{aligned}
+E_0 [\Delta (\hat \theta)] &= E_0 \left [ n\log (2\pi \hat \sigma^2) + nk \log(2\pi) + n\log |\hat \Sigma_S| \right ] + E_0 \left [\frac{n}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) + \frac{n\sigma_0^2}{\hat \sigma^2} + n Tr(\hat \Sigma_S^{-1}\Sigma_{S,0}) \right ],\\
+&= E_0 \left [ n\log (2\pi \hat \sigma^2) + nk \log(2\pi) + n\log |\hat \Sigma_S| \right ] +  n \frac{n k}{(n-k-1)(n-k-2)} + n \frac{n}{n-k-2} + n \frac{nk}{n-k-1},\\
+&= E_0 \left [ n\log (2\pi \hat \sigma^2) + nk \log(2\pi) + n\log |\hat \Sigma_S| \right ] + n \frac{n(k+1)}{n-k-2}.
+\end{aligned}
+$$
+Consequently,
+\begin{equation}
+\text{RAICc} = n\log (\hat \sigma^2) + n\log |\hat \Sigma_S| + nk \log(2\pi) + n \frac{n(k+1)}{n-k-2}.
+\label{eq:raicc}
+\end{equation}
+
+\begin{equation}
+\text{RAICcH} = n\log (\hat \sigma^2) + n \frac{n(n-1)}{(n-k-2)(n-k-1)}.
+\label{eq:raicc}
+\end{equation}
+
+Recall that for a fixed $X$,
+\begin{equation}
+\text{AICc} = n\log (\hat \sigma^2) + n\frac{n+k}{n-k-2},
+\label{eq:aicc}
+\end{equation}
+and 
+\begin{equation}
+\text{AIC} = n\log (\hat \sigma^2) + n + 2(k+1).
+\label{eq:aic}
+\end{equation}
+We then have the relationship that
+$$
+\text{AICc} = \text{AIC} + \frac{2(k+1)(k+2)}{n-k-2}.
+$$
+As $n \rightarrow \infty$, AICc $\rightarrow$ AIC. We now examine if such property exists for RAICc and RAIC. First note that
+$$
+\sum_{i=1}^n x_{i,S}^T \hat{\Sigma}_S^{-1} x_{i,S} = n \sum_{i=1}^n \text{Tr}(x_{i,S} x_{i,S}^T (X_S^T X_S)^{-1}) = n \text{Tr} ( X_S^T X_S (X_S^T X_S)^{-1}) = nk,
+$$ 
+and the total number of estimated parameters is $k+1+\frac{k(k+1)}{2} = \frac{(k+1)(k+2)}{2}$.
+We then have
+\begin{equation}
+\begin{aligned}
+  \text{RAIC} &= -2\log L(\hat{\theta} | X_S, y) + 2 \#\text{parameters} ,\\
+  &= n\log (\hat \sigma^2) + n + n\log |\hat \Sigma_S| + nk \log(2\pi) + nk + (k+1)(k+2),
+\end{aligned}
+\label{eq:raic}
+\end{equation}
+and 
+$$
+\text{RAICc} = \text{RAIC} + \frac{(k+1)(k+2)^2}{n-k-2}.
+$$
+As $n \rightarrow \infty$, RAICc $\rightarrow$ RAIC.
+
+
+\section{Simulation}
+We consider $p=7$ and $\beta_0 = [1,1,1,0_4]$. With pre-specified $\Sigma_0$ and $\sigma_0^2$, the rows of $X$ are generated from $\mathcal{N}(0,\Sigma_0)$. and the response vector is generated from the true model \eqref{eq:truemodel}. We repeat this process for multiple replications. 
+
+
+We also consider the C$_p$ and random C$_p$ criterion (references here), that are defined as
+\begin{equation}
+  \text{C}_p = \frac{ \text{RSS} }{n} + 2 \sigma_0^2\frac{ k }{n},
+  \label{eq:cp}
+\end{equation}
+and 
+\begin{equation}
+  \text{RC}_p = \frac{ \text{RSS} }{n} + \sigma_0^2\frac{ k }{n}\left(2+\frac{k+1}{n-k-1}\right).
+  \label{eq:rcp}
+\end{equation}
+We use the typical estimate of the variance is $\hat{\sigma}_0^2 = \text{RSS}/(n-k)$ here.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/kl_raicc.eps}
+  \caption{KL and RAICc for a sequence of nested models. The KL $E_0(\Delta(\hat{\theta}))$ \eqref{eq:ekl}, is estimated using the sample mean based on $5000$ replications. The RAICc \eqref{eq:raicc} is an average over $5000$ replications. Here we have $n=20$, $p=7$, $\sigma_0=0.05$, $\Sigma_0=0.1 I_p$.}
+  \label{fig:kl_raicc}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/aic_family.eps}
+  \caption{The AIC family. Each of the four criteria is an average over $5000$ replications. The true model has the same setup as in Figure \ref{fig:kl_raicc}.}
+  \label{fig:aic_family}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/cp_family.eps}
+  \caption{The C$_p$ family. Both criteria are averages over $5000$ replications. The true model has the same setup as in Figure \ref{fig:kl_raicc}.}
+  \label{fig:cp_family}
+\end{figure}
+\clearpage
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{The frequency of selected subset size over $100$ replications and average $l_2$ loss. $\Sigma_0=0.1 I_p$ and $p_0=3$.}
+% Table generated by Excel2LaTeX from sheet 'Sheet1'
+\begin{tabular}{clrrrrrrrrr|rrrrrrrrr}
+      &       &       &       & \multicolumn{7}{c|}{n=20}                             & \multicolumn{9}{c}{n=100} \\
+\midrule
+      & Criterion & \multicolumn{1}{l}{Loss} & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7     & \multicolumn{1}{l}{Loss} & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7 \\
+\midrule
+\multirow{6}[2]{*}{$\sigma_0=2$} & AICc  & 0.55  & 56    & 18    & 14    & 7     & 2     & 2     &       & 1     & 0.219 & 16    & 19    & 16    & 30    & 9     & 8     &       & 2 \\
+      & AIC   & 0.85  & 35    & 16    & 17    & 6     & 4     & 9     & 4     & 9     & 0.221 & 14    & 20    & 14    & 32    & 9     & 8     &       & 3 \\
+      & Cp    & 0.73  & 43    & 16    & 18    & 8     & 3     & 4     & 2     & 6     & 0.224 & 15    & 20    & 15    & 30    & 9     & 8     &       & 3 \\
+      & RCp   & 0.83  & 36    & 16    & 17    & 7     & 4     & 8     & 4     & 8     & 0.221 & 14    & 20    & 14    & 32    & 9     & 8     &       & 3 \\
+      & BIC   & 0.58  & 67    & 11    & 9     & 4     & 3     & 3     & 1     & 2     & 0.271 & 55    & 25    & 9     & 10    & 1     &       &       &  \\
+      & RAICc & 0.47  & 65    & 20    & 10    & 5     &       &       &       &       & 0.218 & 17    & 19    & 16    & 29    & 10    & 8     &       & 1 \\
+\midrule
+\multirow{6}[2]{*}{$\sigma_0=1.5$} & AICc  & 0.057 & 5     & 2     & 11    & 69    & 10    & 1     & 2     &       & 0.012 &       &       &       & 77    & 9     & 5     & 4     & 5 \\
+      & AIC   & 0.069 & 2     & 1     & 5     & 47    & 14    & 13    & 11    & 7     & 0.013 &       &       &       & 72    & 10    & 7     & 5     & 6 \\
+      & Cp    & 0.063 & 2     & 2     & 6     & 59    & 12    & 9     & 6     & 4     & 0.012 &       &       &       & 76    & 8     & 6     & 4     & 6 \\
+      & RCp   & 0.069 & 2     & 1     & 5     & 48    & 14    & 12    & 11    & 7     & 0.013 &       &       &       & 72    & 10    & 7     & 5     & 6 \\
+      & BIC   & 0.067 & 7     & 1     & 8     & 59    & 10    & 7     & 5     & 3     & 0.009 &       &       &       & 95    & 4     &       & 1     &  \\
+      & RAICc & 0.057 & 5     & 3     & 13    & 72    & 7     &       &       &       & 0.012 &       &       &       & 81    & 8     & 3     & 4     & 4 \\
+\midrule
+\multirow{6}[1]{*}{$\sigma_0=0.15$} & AICc  & 0.0041 &       &       &       & 85    & 5     & 8     & 1     & 1     & 0.001 &       &       &       & 71    & 15    & 5     & 4     & 5 \\
+      & AIC   & 0.0056 &       &       &       & 59    & 6     & 15    & 9     & 11    & 0.001 &       &       &       & 67    & 15    & 6     & 5     & 7 \\
+      & Cp    & 0.0049 &       &       &       & 71    & 7     & 13    & 6     & 3     & 0.001 &       &       &       & 70    & 15    & 4     & 4     & 7 \\
+      & RCp   & 0.0056 &       &       &       & 59    & 6     & 15    & 9     & 11    & 0.001 &       &       &       & 67    & 15    & 6     & 5     & 7 \\
+      & BIC   & 0.0044 &       &       &       & 79    & 6     & 11    & 3     & 1     & 0.001 &       &       &       & 94    & 5     & 1     &       &  \\
+      & RAICc & 0.0037 &       &       &       & 91    & 4     & 5     &       &       & 0.001 &       &       &       & 73    & 14    & 5     & 3     & 5 \\
+\end{tabular}%
+
+
+\end{table}
+
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{The frequency of selected subset size over $100$ replications and average $l_2$ loss. $\Sigma_0=0.1 I_p$ and $p_0=6$.}
+% Table generated by Excel2LaTeX from sheet 'Sheet1'
+\begin{tabular}{clrrrrrrrrr|rrrrrrrrr}
+      &       &       &       & \multicolumn{7}{c|}{n=20}                             & \multicolumn{9}{c}{n=100} \\
+\midrule
+      & Criterion & \multicolumn{1}{l}{Loss} & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7     & \multicolumn{1}{l}{Loss} & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7 \\
+\midrule
+\multirow{6}[2]{*}{$\sigma_0=1.8$} & AICc  & 0.787 & 51    & 19    & 13    & 4     & 7     & 4     & 1     & 1     & 0.281 & 5     & 6     & 5     & 5     & 9     & 19    & 42    & 9 \\
+      & AIC   & 0.993 & 21    & 10    & 13    & 5     & 11    & 11    & 14    & 15    & 0.268 & 5     & 4     & 2     & 5     & 11    & 18    & 41    & 14 \\
+      & Cp    & 0.904 & 31    & 13    & 15    & 7     & 10    & 9     & 8     & 7     & 0.273 & 5     & 5     & 2     & 5     & 12    & 18    & 40    & 13 \\
+      & RCp   & 0.978 & 22    & 10    & 13    & 7     & 11    & 10    & 15    & 12    & 0.268 & 5     & 4     & 2     & 5     & 11    & 18    & 41    & 14 \\
+      & BIC   & 0.817 & 57    & 11    & 8     & 3     & 7     & 5     & 5     & 4     & 0.474 & 40    & 26    & 3     & 6     & 7     & 8     & 8     & 2 \\
+      & RAICc & 0.733 & 62    & 17    & 13    & 3     & 5     &       &       &       & 0.289 & 6     & 7     & 5     & 4     & 11    & 20    & 39    & 8 \\
+\midrule
+\multirow{6}[2]{*}{$\sigma_0=0.75$} & AICc  & 0.303 & 17    & 7     & 12    & 13    & 17    & 10    & 21    & 1     & 0.04  &       &       &       &       &       & 1     & 83    & 16 \\
+      & AIC   & 0.215 & 3     & 1     & 4     & 6     & 11    & 11    & 46    & 18    & 0.04  &       &       &       &       &       &       & 79    & 21 \\
+      & Cp    & 0.236 & 8     & 1     & 7     & 7     & 13    & 9     & 43    & 12    & 0.041 &       &       &       &       &       & 1     & 78    & 21 \\
+      & RCp   & 0.216 & 3     & 1     & 4     & 7     & 11    & 11    & 47    & 16    & 0.04  &       &       &       &       &       &       & 79    & 21 \\
+      & BIC   & 0.279 & 16    & 2     & 10    & 7     & 13    & 8     & 33    & 11    & 0.04  &       &       &       &       &       & 3     & 93    & 4 \\
+      & RAICc & 0.352 & 21    & 12    & 17    & 17    & 18    & 8     & 7     &       & 0.04  &       &       &       &       &       & 1     & 85    & 14 \\
+\midrule
+\multirow{6}[1]{*}{$\sigma_0=0.28$} & AICc  & 0.024 &       &       &       &       &       &       & 92    & 8     & 0.005 &       &       &       &       &       &       & 83    & 17 \\
+      & AIC   & 0.026 &       &       &       &       &       &       & 69    & 31    & 0.005 &       &       &       &       &       &       & 80    & 20 \\
+      & Cp    & 0.026 &       &       &       &       &       &       & 77    & 23    & 0.005 &       &       &       &       &       &       & 82    & 18 \\
+      & RCp   & 0.026 &       &       &       &       &       &       & 72    & 28    & 0.005 &       &       &       &       &       &       & 80    & 20 \\
+      & BIC   & 0.026 &       &       &       &       &       &       & 76    & 24    & 0.005 &       &       &       &       &       &       & 95    & 5 \\
+      & RAICc & 0.026 &       &       &       &       &       & 6     & 92    & 2     & 0.005 &       &       &       &       &       &       & 84    & 16 \\
+\end{tabular}%
+
+
+\end{table}
+
+
+
+
+
+\clearpage
+\section{With known mean matrix $M_0$}
+Suppose that $X$ is a random $n \times p$ matrix with known mean $M_0$, write
+\[
+X=
+\left(
+    \begin{array}{c}
+      x_1^T \\
+      x_2^T \\
+      \vdots \\
+      x_n^T \\
+    \end{array}
+  \right) \,\,\, ,
+\]
+and
+\[
+M_0=
+\left(
+    \begin{array}{c}
+      \mu_{1,0}^T \\
+      \mu_{2,0}^T \\
+      \vdots \\
+      \mu_{n,0}^T \\
+    \end{array}
+  \right) \,\,\, .
+\]
+Denote $\tilde{x}_i = x_i - \mu_{i,0}$. We assume further that $\{\tilde{x}_i\}_{i=1}^n$ are $iid$ multivariate normal with mean $0$ and covariance matrix $\Sigma_0$, i.e. $E(\tilde{x}_i \tilde{x}_i^T) = \Sigma_0$.
+The true model is
+\begin{equation}
+y=X \beta_0 + \epsilon ,
+\label{eq:truemodel}
+\end{equation}
+where $y$ is $(n \times 1)$, $\beta_0$ is $(p \times 1)$ (possibly having zero entries), and the $(n \times 1)$ vector $\epsilon$ is independent of $X$, with $\{\epsilon_i\}_{i=1}^n \stackrel {iid} {\sim} N(0,\sigma_0^2)$.
+Let $S$ be a subset of $\{1,2,\cdots,p\}$ of size $k$, where $k \leq p$. Define $X_S$ to be the $(n \times k)$ sub-matrix of $X$ containing the columns (in increasing order) corresponding to the subset $S$ and $M_{S,0}$ to be the $(n \times k)$ sub-matrix of $M_0$ containing the mean vectors corresponding to $X_S$. Write
+\[
+X_S=
+\left(
+    \begin{array}{c}
+      x_{1,S}^T \\
+      x_{2,S}^T \\
+      \vdots \\
+      x_{n,S}^T \\
+    \end{array}
+  \right) \,\,\, ,
+\]
+and 
+\[
+M_{S,0}=
+\left(
+    \begin{array}{c}
+      \mu_{1,S,0}^T \\
+      \mu_{2,S,0}^T \\
+      \vdots \\
+      \mu_{n,S,0}^T \\
+    \end{array}
+  \right) \,\,\, ,
+\]
+so that $X_S^T X_S = \sum_{i=1}^n x_{i,S} x_{i,S}^T$. Denote $\tilde{x}_{i,S} = x_{i,S} - \mu_{i,S,0}$ and define $\Sigma_{S,0} = E_0[\tilde{x}_{i,S} \, \tilde{x}_{i,S}^T]$. Note that $\Sigma_{S,0}$ is a sub-matrix of $\Sigma_0$.
+
+The approximating model corresponding to the subset $S$ is
+\[
+y=X_S \beta + u \,\,\, ,
+\]
+where $\beta$ is $(k \times 1)$, the $(n \times 1)$ vector $u$ is independent of $X$, with $\{u_i\}_{i=1}^n \stackrel {iid} {\sim} N(0,\sigma^2)$, and
+the $\tilde{x}_{i,S}$ are independent multivariate normal with mean $0$ covariance matrix $\Sigma_S$, and density $g$.
+The parameter vector is $\theta = (\beta,\sigma^2,\Sigma_S)$. Let $f(y_i,x_{i,S}|\theta)$ denote the multivariate normal density for $y_i$ and $x_{i,S}$. Let $f(y_i|x_{i,S},\theta)$ denote the conditional density for $y_i$ given $x_{i,S},\theta$. Let $L(\theta|{X_S,y})$ denote the likelihood function for $\theta$. We have
+
+\[
+-2 \log L(\theta|X_S,y) = -2 \sum_{i=1}^n \log f(y_i,x_{i,S}|\theta) = -2 \sum_{i=1}^n [\log f(y_i|x_{i,S},\theta) + \log g(x_{i,S}|\Sigma_S)]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} || y-X_S\beta||_2^2 \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + \sum_{i=1}^n \tilde{x}_{i,S}^T \Sigma_S^{-1} \tilde{x}_{i,S} \right ]
+\]
+so that
+\[
+\hat \beta = \arg \min_\beta ||y-X_S\beta||_2^2 = (X_S^TX_S)^{-1}X_S^T y \,\,\, ,
+\]
+\[
+\hat \sigma^2 = \frac{1}{n} ||y-X_S \hat \beta||^2 \,\,\,
+\]
+and
+\[
+\hat \Sigma_S = \frac{1}{n} \sum_{i=1}^n \tilde{x}_{i,S} \, \tilde{x}_{i,S}^T = \frac{1}{n} \tilde{X}_S^T \tilde{X}_S \,\,\, .
+\]
+Similarly,
+\[
+\hat \Sigma = \frac{1}{n} \sum_{i=1}^n \tilde{x}_i \, \tilde{x}_i^T = \frac{1}{n} \tilde{X}^T \tilde{X} \,\,\, .
+\]
+For any subset $S$ and any $\beta \in R^k$, define $\beta_S$ to be the $(p \times 1)$ vector obtained from $\beta$ by inserting zeros in such a way that the $i^{th}$ entry of
+$\beta_S$ is zero if $i$ is not in $S$. Note that $X_S \beta = X \beta_S$.
+
+The $KL$ discrepancy is
+\[
+\Delta (\theta) = E_0 [-2 \log L(\theta | X_S,y)]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} E_0 || y-X_S\beta||_2^2 \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + E_0 \sum_{i=1}^n \tilde{x}_{i,S}^T \Sigma_S^{-1} \tilde{x}_{i,S} \right ]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} E_0 || X\beta_0-X \beta_S+\epsilon||_2^2 \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + E_0 \sum_{i=1}^n \tilde{x}_{i,S}^T \Sigma_S^{-1} \tilde{x}_{i,S} \right ]
+\]
+\[
+= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2}  (\beta_S-\beta_0)^T (n\Sigma_0+M_0^T M_0) (\beta_S-\beta_0) + \frac{n\sigma_0^2}{\sigma^2} \right ] + \left [nk \log(2\pi) + n \log |\Sigma_S| + n Tr(\Sigma_S^{-1}\Sigma_{S,0}) \right ] \,\,\, .
+\]
+For any subset $S$ and any $\beta \in R^k$, define $\hat \beta_S$ to be the $(p \times 1)$ vector obtained from $\hat \beta$ by inserting zeros in such a way that the $i^{th}$ entry of
+$\hat \beta_S$ is zero if $i$ is not in $S$. Note that $X_S \hat \beta = X \hat \beta_S$.
+
+The expected $KL$ discrepancy is
+\begin{equation}
+\begin{aligned}
+E_0 [\Delta (\hat \theta)] &=  E_0 \left [ n\log (2\pi \hat \sigma^2) + \frac{1}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T (n\Sigma_0+M_0^T M_0) (\hat \beta_S-\beta_0) + \frac{n\sigma_0^2}{\hat \sigma^2} \right ], \\
+&+E_0 \left [nk \log(2\pi) + n\log |\hat \Sigma_S| + n Tr(\hat \Sigma_S^{-1}\Sigma_{S,0}) \right ].
+\end{aligned}
+\label{eq:ekl}
+\end{equation}
+
+First note that since $\tilde{x}_{i,S}$ are iid from $\mathcal{N}(0,\Sigma_{S,0})$, $\tilde{X}_S^T \tilde{X}_S \sim \mathcal{W}(\Sigma_{S,0}, n)$ and $ (\tilde{X}_S^T \tilde{X}_S)^{-1} \sim \mathcal{W}^{-1} (\Sigma_{S,0}^{-1}, n)$, where $\mathcal{W}$ and $\mathcal{W}^{-1}$ denotes a Wishart and an inverse Wishart distribution with $n$ degrees of freedom. We have $E_0(\tilde{X}_S^T \tilde{X}_S) = n\Sigma_{S,0}$ and $E_0 ((\tilde{X}_S^T \tilde{X}_S)^{-1}) = \Sigma_{S,0}^{-1} / (n-k-1)$. Hence,
+$$
+  E_0 \left[ Tr(\hat \Sigma_S^{-1}\Sigma_{S,0}) \right] = E_0 \left[ Tr(n (\tilde{X}_S^T \tilde{X}_S)^{-1} \Sigma_{S,0}) \right] = n Tr\left[ E_0\left( (\tilde{X}_S^T \tilde{X}_S)^{-1} \right) \Sigma_{S,0}\right] = \frac{nk}{n-k-1}.
+$$
+Also, we note that
+\[
+E_0 \left [ \frac{1}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T (n\Sigma_0+M_0^T M_0) (\hat \beta_S-\beta_0) \right ]
+\]
+\[
+= E_0 \left \{ E_0 \left [ \frac{1}{\hat \sigma^2}  (\hat \beta_S-\beta_0)^T (n\Sigma_0+M_0^T M_0) (\hat \beta_S-\beta_0) |X \right ] \right \} \,\,\, .
+\]
+If the approximating model contains the operating model, then conditionally on $X$, the quadratic form
+\[
+(\hat \beta_S-\beta_0)^T (n\Sigma_0+M_0^T M_0) (\hat \beta_S-\beta_0)
+\]
+is independent of $\hat \sigma^2$, and the first term
+\[
+E_0 \left [ (\hat \beta_S-\beta_0)^T \Sigma_0 (\hat \beta_S-\beta_0) |X \right ] = \sigma_0^2 Tr(\Sigma_{S,0} (X_S^TX_S)^{-1} )  \,\,\, .
+\]
+We then need to figure out $E_0((X_S^TX_S)^{-1})$.
+
+\clearpage
+
+\begin{table}[ht!]
+\centering
+\caption{Sparse-Ex1. $n=200$}
+\scalebox{0.48}{
+% Table generated by Excel2LaTeX from sheet 'Sheet2'
+\begin{tabular}{|c|c|c|cc|cc|cc|ccc||cc|cc|cc|ccc|}
+\toprule
+\multicolumn{1}{|r}{} & \multicolumn{1}{r}{} &       & \multicolumn{9}{c||}{$n=200$}                                         & \multicolumn{9}{c|}{$n=2000$} \\
+\cmidrule{4-21}\multicolumn{1}{|c}{} & \multicolumn{1}{c}{} &       & RAICc & AICc  & RC$_p$ & C$_p$ & 10F CV & 200F CV & AIC   & BIC   & GCV   & RAICc & AICc  & RC$_p$ & C$_p$ & 10F CV & 200F CV & AIC   & BIC   & GCV \\
+\cmidrule{4-21}\multicolumn{1}{|c}{} & \multicolumn{1}{c}{} &       & \multicolumn{18}{c|}{\% worse than the best possible candidate} \\
+\midrule
+\multirow{9}[6]{*}{hsnr} & \multirow{3}[2]{*}{$\rho=0$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.5$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.9$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\midrule
+\multirow{9}[6]{*}{msnr} & \multirow{3}[2]{*}{$\rho=0$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.5$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.9$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\midrule
+\multirow{9}[6]{*}{lsnr} & \multirow{3}[2]{*}{$\rho=0$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.5$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.9$} & $p=20$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=100$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+      &       & $p=170$ & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1     & 1 \\
+\midrule
+\multicolumn{1}{|c}{} & \multicolumn{1}{c}{} &       & \multicolumn{18}{c|}{Sparsistency (number of extra variables)} \\
+\midrule
+\multirow{9}[6]{*}{hsnr} & \multirow{3}[2]{*}{$\rho=0$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.5$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.9$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\midrule
+\multirow{9}[6]{*}{msnr} & \multirow{3}[2]{*}{$\rho=0$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.5$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.9$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\midrule
+\multirow{9}[6]{*}{lsnr} & \multirow{3}[2]{*}{$\rho=0$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.5$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\cmidrule{2-21}      & \multirow{3}[2]{*}{$\rho=0.9$} & $p=20$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=100$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+      &       & $p=170$ & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) & 10(10) \\
+\bottomrule
+\end{tabular}%
+
+
+
+
+
+}
+\end{table}
+
+
+\end{document} 

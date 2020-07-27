@@ -1,0 +1,178 @@
+%!TEX root = ms.tex
+\section{Introduction}
+Consider a linear regression problem with an $n\times 1$ response vector $y$ and an $n\times p$ design matrix $X$. The true model is generated from 
+\begin{equation}
+y=X \beta_0 + \epsilon,
+\label{eq:truemodel}
+\end{equation}
+where $\beta_0$ is a $p \times 1$ true coefficient vector, and the $n \times 1$ vector $\epsilon$ is independent of $X$, with $\{\epsilon_i\}_{i=1}^n \stackrel {iid} {\sim} N(0,\sigma_0^2)$. We consider an approximating model 
+\begin{equation*}
+y=X \beta + u,
+%\label{eq:approxmodel}
+\end{equation*}
+where $\beta$ is $p \times 1$ and the $n \times 1$ vector $u$ is independent of $X$, with $\{u_i\}_{i=1}^n \stackrel {iid} {\sim} N(0,\sigma^2)$. We further impose $m$ linear restrictions on the coefficient vectors $\beta$ that are given by
+\begin{equation}
+  R \beta = r,
+  \label{eq:restriction}
+\end{equation}
+where $R$ is an $m \times p$ matrix with linearly independent rows ($\text{rank}(R)=m$) and $r$ is an $m \times 1$ vector. Examples of such restrictions include setting some slopes equal to 0 (which corresponds to variable selection), setting slopes equal to each other (which corresponds to using the sum of predictors in a model), and setting sums of slopes to 0 (which for pairs of predictors corresponds to using the difference of the predictors in a model).
+
+Suppose first that $X$ is deterministic; we refer to this as the fixed-X design. Denote $f(y_i|x_i,\beta,\sigma^2)$ as the density for $y$ conditional on i-th row of $x_i$. We have the log-likelihood function (multiply by a constant $-2$)
+\begin{equation}
+-2 \log f(y|X,\beta,\sigma^2) = -2 \sum_{i=1}^n \log f(y_i|x_i,\beta,\sigma^2) = n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} || y-X\beta||_2^2.
+\label{eq:loglike_fixedx}
+\end{equation}
+By minimizing \eqref{eq:loglike_fixedx} subject to \eqref{eq:restriction}, we obtain the restricted maximum likelihood estimator (MLE)
+\begin{equation}
+\begin{aligned}
+\hat{\beta} &= \hat{\beta}^f + (X^T X)^{-1} R^T ( R(X^T X)^{-1} R^T)^{-1} (r-R \hat{\beta}^f),\\ 
+\hat \sigma^2 &= \frac{1}{n} ||y-X \hat{\beta}||^2, 
+\end{aligned}
+\label{eq:betahat_sigmahatsq}
+\end{equation}
+where $\hat{\beta}^f = (X^T X)^{-1} X^T y$ is the unrestricted least squares estimator. Since the errors are assumed to be Gaussian, $\hat\beta$ is also the restricted least squares estimator. 
+
+In practice, a sequence of estimators $\hat\beta(R_i,r_i|X,y)$, each based on a different set of restrictions, is often generated, and the goal is to choose the one with the best predictive performance. This can be done on the basis of information criteria, which are designed to estimate the predictive accuracy for each considered model. Note that the notion of predictive accuracy can be as simple as distance of a predicted value from a future value, as is the case in squared-error prediction measures, but also can encompass the more general idea that the log-likelihood is a measure of the accuracy of a fitted distribution as a prediction for the distribution of a future observation. This can be traced back to \citet{Akaike1973}, as noted in an interview with Akaike \citep{findley1995conversation}; see also \citet{efron1986biased}. 
+
+\subsection{Variable selection under fixed-X}
+\label{sec:intro_subsetselection}
+An important example of comparing models with different linear restrictions on $\beta$ is variable selection. Without loss of generality, we consider fitting the ordinary least squares (OLS) estimator on the first $k$ predictors of $X$, i.e. $\hat\beta^f(X_1,\cdots,X_k,y)$. By letting $R_k= \irow{0 & I_{p-k}}_{(p-k) \times p} $ and $r_k = \irow{0}_{(p-k) \times 1}$, it is easy to verify that $\hat{\beta}(R_k,r_k|X,y)=\hat\beta^f(X_1,\cdots,X_k,y)$. Therefore, comparing OLS fits on different subsets of predictors falls into the framework of comparing estimators with different linear restrictions on $\beta$.
+
+Information criteria are designed to provide an unbiased estimate of the testing error. We simplify the notation by denoting $\hat\beta(k) = \hat{\beta}(R_k,r_k|X,y)$. We also denote errF as the in-sample training error and ErrF as the out-of-sample testing error. These notations are based on those in \citet{efron2004estimation} and the notation F here indicates that we have a fixed-$X$. Let $\tilde{y}$ be an independent copy of the original response $y$, i.e. $\tilde{y}$ is drawn from the conditional distribution of $y|X$. \citet{efron1986biased} defined the optimism of a fitting procedure as the difference between the testing error and the training error, i.e.
+\begin{equation*}
+\text{optF} = \text{ErrF} - \text{errF},
+%\label{eq:optF}
+\end{equation*}
+and introduced the optimism theorem,
+\begin{equation*}
+E_y(\text{optF}) = E_y(\text{ErrF}) - E_y(\text{errF}),
+\end{equation*}
+where $E_y$ represents the expectation taken under the true model with respect to the random variable $y$. The optimism theorem provides an elegant framework to obtain an unbiased estimator of $E(\text{ErrF})$, 
+that is
+\begin{equation*}
+\widehat{\text{ErrF}} = \text{errF} + E_y(\text{optF}),
+%\label{eq:ErrFhat}
+\end{equation*}
+where the notation $\widehat{\text{ErrF}}$ is followed from \citet{efron2004estimation}. It turns out that many existing information criteria can be derived using the concept of optimism. 
+
+A typical measure of the discrepancy between the true model and the approximating models is the squared error (SE), i.e. 
+\begin{equation*}
+\text{ErrF}_\text{SE} = E_{\tilde{y}}\left( \lVert \tilde{y}-X\hat{\beta} \rVert_2^2 \right).
+%\label{eq:ErrF_SE}
+\end{equation*} 
+The training error is $\text{errF}_\text{SE} = \displaystyle \lVert y-X\hat{\beta} \rVert_2^2$. \citet{ye1998measuring} and \citet{efron2004estimation} showed that for any general fitting procedure $\hat\mu$ and any model distribution (not necessarily Gaussian)
+\begin{equation}
+E_y(\text{optF}_\text{SE}) = 2\sum_{i=1}^n \text{Cov}_y(\hat\mu_i,y_i),
+\label{eq:EoptF_SE}
+\end{equation}
+which is often referred to as the covariance penalty. For the OLS estimator $\hat\mu(k) = X\hat\beta(k)$, it is easy to verify that $E_y(\text{optF}_\text{SE}(k)) = 2 \sigma_0^2 k$. We denote RSS$(k)$ as the residual sum of squares for the OLS estimator, i.e. $\text{RSS}(k)=\lVert y- X\hat\beta(k) \rVert_2^2$. Hence,
+\begin{equation*}
+\widehat{\text{ErrF}}_\text{SE}(k) = \text{RSS}(k) + 2 \sigma_0^2 k
+\end{equation*}
+is an unbiased estimator of $E_y(\text{ErrF}_\text{SE})$. As suggested by \citet{mallows1973some}, typically $\sigma_0^2$ is estimated using the OLS fit on all the predictors, i.e. $\hat\sigma_0^2=\text{RSS}(p)/(n-p)$. We then obtain the Mallows' C$_p$ criterion \citep{mallows1973some} 
+\begin{equation}
+\text{C}_p(k) = \text{RSS}(k) + \frac{\text{RSS}(p)}{n-p} 2k.
+\label{eq:cp_subsetselection}
+\end{equation}
+
+Another commonly-used error measure is (twice) the Kullback-Leibler (KL) divergence \citep[see, e.g.,][Section 3]{konishi2008information}
+\begin{equation}
+\text{KLF} = E_{\tilde{y}}\left[ 2\log f(\tilde{y} | X,\beta_0,\sigma_0^2 ) - 2\log f(\tilde{y} | X,\hat\beta,\hat\sigma^2 ) \right].
+\label{eq:KLF}
+\end{equation}
+By replacing the unknown parameters by their MLE, the right hand side of \eqref{eq:KLF} evaluates the predictive accuracy of the fitted model, by measuring the closeness of the distribution of $\tilde{y}$ based on the fitted model and the distribution of $\tilde{y}$ based on the true model. The term $E_{\tilde{y}}\left[ 2\log f(\tilde{y} | X,\beta_0,\sigma_0^2 ) \right]$ is the same for every fitted model. Therefore, an equivalent error measure is the expected likelihood
+\begin{equation*}
+\text{ErrF}_\text{KL} = E_{\tilde{y}}\left[ -2\log f(\tilde{y} | X,\hat\beta,\hat\sigma^2 ) \right].
+%\label{eq:ErrF_KL}
+\end{equation*}
+The training error is 
+\begin{equation*}
+\text{errF}_\text{KL} = -2\log f(y|X,\hat\beta,\hat\sigma^2).
+%\label{eq:errF_KL}
+\end{equation*}
+For the OLS estimator with a Gaussian error, as assumed in \eqref{eq:truemodel}, with an assumption that the predictors with non-zero true coefficients are included in the model, \citet{sugiura1978further} and \citet{hurvich1989regression} showed that
+\begin{equation*}
+E_y(\text{optF}_\text{KL}(k)) = n\frac{n+k}{n-k-2}-n,
+%\label{eq:EoptF_KL}
+\end{equation*}
+and hence
+\begin{equation*}
+\widehat{\text{ErrF}}_\text{KL}(k) = n\log\left(\frac{\text{RSS}(k)}{n}\right) + n\frac{n+k}{n-k-2} + n\log(2\pi)
+\end{equation*}
+is an unbiased estimator of $E_y(\text{ErrF}_\text{KL})$. Since the term $n\log(2\pi)$ appears in all the models being compared and thus is irrelevant when comparing criteria for these models, the authors dropped it and introduced the corrected AIC
+\begin{equation}
+\text{AICc}(k) = n \log\left( \frac{\text{RSS}(k)}{n}\right) + n\frac{n+k}{n-k-2}.
+\label{eq:aicc_subsetselection}
+\end{equation}
+\citet{hurvich1989regression} showed that AICc has superior finite-sample predictive performance compared to AIC \citep{Akaike1973}
+\begin{equation*}
+\text{AIC}(k) = n \log\left( \frac{\text{RSS}(k)}{n}\right) + 2k,
+\end{equation*}
+which does not require a Gaussian error assumption but relies on asymptotic results. Both AICc and AIC do not involve $\sigma_0^2$, a clear advantage over C$_p$. 
+
+\subsection{From fixed-X to random-X}
+The assumption that $X$ is fixed holds in many applications, for example in a designed experiment where categorical predictors are represented using indicator variables or effect codings. However, in many other cases where the data are observational and the experiment is conducted in an uncontrolled manner, fixed-X is not valid and it is more appropriate to treat $(x_i,y_i)_{i=1}^n$ as $iid$ random draws from the joint distribution of $X$ and $y$. We refer this as the random-X design. %For example, in the prostate cancer example from \citet[p.~49]{hastie2009elements}, the response variable $y$ is the level of prostate-specific antigen, and the predictors $X$ are clinical measures such as the weight of prostate, the volume of cancer, the age of patient, and etc. The goal is to predict the level of prostate-specific antigen based on the clinical measures of a new unseen patient. This fits the random-X assumption.
+
+As noted by \citet{breiman1992submodel}, the choice between fixed-X and random-X is conceptual, and is normally determined based on the nature of the study. The authors also showed in simulations that mistakenly using the predictive measure defined under one design when the other is appropriate can be dangerous, since the random-X generally produces larger error and the difference can sometimes be large. Therefore, using the information criteria discussed in Section \ref{sec:intro_subsetselection} when $X$ is random can potentially lead to misleading impressions of the predictive accuracy.
+
+For the random-X design, we assume that the row vectors of $X$, $\{x_i\}_{i=1}^n$ are $iid$ multivariate normal with mean $E(x_i)=0$ and covariance matrix $E(x_i x_i^T)=\Sigma_0$. Let $f(y_i,x_i|\beta,\sigma^2,\Sigma)$ denote the joint multivariate normal density for $y_i$ and $x_i$. Let $g(x_i|\Sigma)$ denote the multivariate normal density for $x_i$. By partitioning the joint density of $(y,X)$ into the product of the conditional and marginal densities, and by separating the parameters of interest, we have the log-likelihood function (multiply by the constant $-2$)
+\begin{equation}
+\begin{aligned}
+-2 \log f(y, X|\beta,\sigma^2,\Sigma) &= \sum_{i=1}^n -2 \log f(y_i, x_i|\beta,\sigma^2,\Sigma) = -2 \sum_{i=1}^n [\log f(y_i|x_i,\beta,\sigma^2) + \log g(x_i|\Sigma)] \\
+&= \left [ n \log (2\pi \sigma^2) + \frac{1}{\sigma^2} || y-X\beta||_2^2 \right ] + \left [np \log(2\pi) + n \log |\Sigma| + \sum_{i=1}^n x_i^T \Sigma^{-1} x_i \right ].
+\end{aligned}
+\label{eq:loglike_randomx}
+\end{equation}
+Minimizing \eqref{eq:loglike_randomx} subject to \eqref{eq:restriction}, we find that the MLE $(\hat{\beta}, \hat{\sigma}^2)$ of $(\beta, \sigma^2)$ remains the same as in the fixed-X design, i.e. \eqref{eq:betahat_sigmahatsq}. The MLE of $\Sigma$ is given by
+\begin{equation*}
+\hat \Sigma = \frac{1}{n} \sum_{i=1}^n x_i \, x_i^T = \frac{1}{n} X^T X.
+%\label{eq:Sigmahat}
+\end{equation*}
+
+Since $\hat\beta$ is unchanged when we move from fixed-X to random-X, variable selection as an example of linear restrictions on $\beta$ is based on the same parameter estimates as in Section \ref{sec:intro_subsetselection}. Denote errR, ErrR and optR as the training error, testing error and the optimism under a random-X, respectively. We generate $X^{(n)}$ as an independent copy of $X$, where the rows $\{x_i^{(n)}\}_{i=1}^n$ are drawn from $iid$ multivariate normal $\mathcal{N}(0,\Sigma_0)$. The new copy of the response $y^n$ is generated from the conditional distribution $y|X^n$. The optimism for random-X can be defined in the same way as in the fixed-X, i.e. $\text{optR}=\text{ErrR}-\text{errR}$. \citet{rosset2020fixed} discussed the optimism for general fitting procedures, when the discrepancy between the true and approximating models is measured by the squared error (SE), i.e.
+\begin{equation*}
+\text{ErrR}_\text{SE} = E_{X^{(n)},y^{(n)}} \left( \lVert y^{(n)} - X^{(n)} \hat\beta \rVert_2^2 \right).
+%\label{eq:ErrR_SE}
+\end{equation*}
+The training error is $\text{errR}_\text{SE} = \lVert y - X \hat\beta \rVert_2^2$. For the OLS estimator, the authors showed that for any model distributions (not necessarily Gaussian)
+\begin{equation*}
+E_{X,y}(\text{optR}_\text{SE}(k)) = \sigma_0^2 k \left(2 + \frac{k+1}{n-k-1} \right),
+%\label{eq:EoptR_SE}
+\end{equation*}
+and hence
+\begin{equation*}
+\widehat{\text{ErrR}}_\text{SE}(k) = \text{RSS}(k) + \sigma_0^2 k \left(2 + \frac{k+1}{n-k-1} \right)
+\end{equation*}
+is an unbiased estimator of $E_{X,y}(\text{ErrR}_\text{SE})$. As in the fixed-X case, if we use the unbiased estimate of $\sigma_0^2$ based on the full OLS fit, we have the analog of the C$_p$ rule for random-X, 
+\begin{equation}
+\text{RC}_p(k) = \text{RSS}(k) + \frac{\text{RSS}(p)}{n-p} k\left(2 + \frac{k+1}{n-k-1}\right).
+\label{eq:rcp_subsetselection}
+\end{equation}
+An alternative is to use the OLS fit based on the $k$ predictors in the subset to estimate $\sigma_0^2$, i.e. $\hat\sigma_0^2=\text{RSS}(k)/(n-k)$, which yields the S$_p$ criterion \citep{tukey1967discussion} (see also \citet{hocking1976biometrics,thompson1978a,thompson1978b})
+\begin{equation}
+\text{S}_p(k) = \text{RSS}(k)\frac{n(n-1)}{(n-k)(n-k-1)}.
+\label{eq:sp_subsetselection}
+\end{equation}
+Note that the notation used here is slightly different from that in \citet{rosset2020fixed}, where the authors used RC$_p$ to denote the infeasible criterion involving $\sigma_0^2$ and used $\widehat{\text{RC}}_p$ to denote the feasible criterion S$_p$. The RC$_p$ criterion in our notation was not studied in their paper. 
+
+Another class of selection rules is cross-validation (CV), which does not impose parametric assumptions on the model. A commonly used type of CV is the so-called K-fold CV. The data are randomly split into K equal folds. For each fold, the model is fitted using data in the remaining folds and is evaluated on the current fold. The process is repeated for all K folds, and an average squared error is obtained. In particular, the n-fold CV or leave-one-out (LOO) CV provides an approximately unbiased estimator of the testing error under the random-X design, i.e. $E_{X,y}(\text{ErrR}_\text{SE})$. \citet{burman1989comparative} showed that for OLS, LOO CV has the smallest bias and variance in estimating the squared error-based testing error, among all K-fold CV estimators. LOO CV is generally not preferred due to its large computational cost, but for OLS, LOO CV error has an analytical expression: the predicted residual sum of squares (PRESS) statistic \citep{allen1974relationship}
+\begin{equation*}
+\text{PRESS}(k) = \sum_{i=1}^n \left( \frac{y_i-x_i^T\hat\beta(k)}{1-H_{ii}(k)} \right)^2,
+%\label{eq:press}
+\end{equation*}
+where $H(k) = X(k)(X(k)^T X(k))^{-1}X(k)^T$ and $X(k)$ contains the first $k$ columns of $X$. 
+
+\subsection{General linear restrictions}
+Variable selection is a special case of linear restrictions on $\beta$, where certain entries of $\beta$ are restricted to be zero. In practice, we may restrict predictors to have the same coefficient (e.g. $\beta_1=\beta_2=\beta_3$), or we may restrict the sum of their effects (e.g. $\beta_1+\beta_2+\beta_3=1$). Using the structure in \eqref{eq:restriction}, we formulate a sequence of models, each of which imposes a set of general restrictions on $\beta$, where the goal is to select the model with best predictive performance. Information criteria and PRESS cannot be applied directly to this problem, although \citet{tarpey2000note} derived the PRESS statistic for the estimator under general restrictions as
+\begin{equation*}
+\text{PRESS}(R,r) = \sum_{i=1}^n \left( \frac{y_i-x_i^T\hat\beta}{1-H_{ii}+{H_Q}_{ii}} \right)^2,
+%\label{eq:press}
+\end{equation*}
+where $H=X(X^T X)^{-1} X^T$ and $H_Q = X (X^T X)^{-1} R^T \left[ R (X^T X)^{-1} R^T \right]^{-1} R (X^T X)^{-1} X^T$.  
+
+
+\subsection{The contribution of this paper}
+The information criteria introduced in Section \ref{sec:intro_subsetselection} apply only to variable selection problems under fixed-X. In this paper we discuss how such criteria can be generalized to model comparison under general linear restrictions under either fixed-X or random-X (in the latter case including the special case of variable selection). Note that a selection rule is preferred if it chooses the specified model that leads to the best predictive performance. This is related to but not the same as, providing the best estimate of the testing error. These two goals are fundamentally different \citep[see, e.g.,][Section 7]{hastie2009elements}, and we focus on the performance of a criterion as a selection rule.
+
+In Section \ref{sec:ic_fixedx}, we consider the fixed-X situation and derive general versions of AICc and C$_p$ for arbitrary linear restrictions on $\beta$. Random-X is assumed in Section \ref{sec:ic_randomx} and a version of RC$_p$ for general linear restrictions is obtained. Furthermore, we propose the novel RAICc criterion for general linear restrictions and discuss its connections with AICc. We further show that the expressions of the information criteria for variable selection problems can be recovered as special cases from their expressions derived under general restrictions. In Section \ref{sec:simulation}, we show via simulations that AICc and RAICc provide consistently strong predictive performance for both variable selection and general restrictions. Lastly, in Section \ref{sec:conclusion}, we provide conclusions and discussions of potential future work.
+
