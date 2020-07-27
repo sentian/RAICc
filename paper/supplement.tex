@@ -9,7 +9,7 @@ Selection of Regression Models under Linear Restrictions for Fixed and Random De
 Sen Tian, Clifford M. Hurvich, Jeffrey S. Simonoff
 \end{center}
 
-This document provides theoretical details of the theorems and lemmas in the paper. The complete simulation results can be viewed online\footnote{https://drive.google.com/file/d/1Arh00mfRl9-L0-sFeq558LSU-CbNYM4b/view?usp=sharing}.
+This document provides theoretical details of the theorems and lemmas in the paper. The complete simulation results can be viewed online\footnote{https://github.com/sentian/RAICc/blob/master/paper/simuresults_reduced.pdf}.
 
 
 
@@ -200,7 +200,7 @@ E_{X,y}(\text{optR}_\text{SE}) = E_{X,y}(\text{optF}_\text{SE}) + B^+ + V^+ = 2 
 \end{equation*}
 where $B^+$ and $V^+$ are the excess bias and excess variance of the fit. In particular, the excessed bias is defined as
 \begin{equation*}
-B^+ = E_{X,X^{(n)}} \big\lVert E_y( X^{(n)} \hat{\beta} \big | X, X^{(n)} ) - X^{(n)} \beta_0 \big\rVert_2^2 - E_X \big\lVert E( X \hat{\beta} \big | X ) - X \beta_0 \big\rVert_2^2.
+B^+ = E_{X,X^{(n)}} \big\lVert E( X^{(n)} \hat{\beta} \big | X, X^{(n)} ) - X^{(n)} \beta_0 \big\rVert_2^2 - E_X \big\lVert E( X \hat{\beta} \big | X ) - X \beta_0 \big\rVert_2^2.
 \end{equation*}
 Because of our assumption that the true model satisfies the restrictions, it follows that $\hat{\beta}$ is unbiased, and hence it is easy to see that $B^+=0$. Next, $V^+$ is defined as
 \begin{equation*}
