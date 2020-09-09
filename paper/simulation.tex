@@ -1,120 +1,83 @@
 %!TEX root = ms.tex
-\section{Simulation}
+\section{Performance of the selectors}
 \label{sec:simulation}
-The following three information criteria are also considered in the simulation study, that are the BIC criterion \citep{schwarz1978estimating}
+\subsection{Some other selectors}
+In this section we use computer simulations to explore the behavior of different criteria when used for model selection under linear restrictions (variable selection and general linear restrictions). In addition to the criteria already discussed, we also consider two other well-known criteria: 
 \begin{equation*}
-\text{BIC}(k) = n \log\left( \frac{\text{RSS}(k)}{n} \right) +\log(n) k,
+\text{BIC}(k) = n \log\left( \frac{\text{RSS}(k)}{n} \right) +\log(n) k
 %\label{eq:bic}
 \end{equation*}
-the generalized cross-validation (GCV) criterion \citep{craven1978smoothing}
-\begin{equation*}
-\text{GCV}(k) = \text{RSS}(k)\frac{n^2}{(n-k)^2},
-%\label{eq:gcv_subsetselection}
-\end{equation*}
-and 
-\begin{equation*}
-\tilde{\text{C}}_p(k) = \text{RSS}(k)\frac{n+k}{n-k}.
-%\label{eq:cptilde}
-\end{equation*}
-BIC$(k)$ is a consistent criterion, in the sense that under some conditions, if the true model is among the candidate models, the probability of selecting the true model approaches one. GCV$(k)$ is closely related to S$_p(k)$ where both are multiplicative criteria and have similar penalty terms, although GCV was derived in a different context. Recall that S$_p(k)$ is derived from $\widehat{\text{ErrR}}_\text{SE}(k)$ by plugging in the estimator $\hat\sigma_0^2 = \text{RSS}(k)/(n-k)$ based on the OLS fit on the $k$ predictors in the subset. The same procedure can be performed in the fixed-X scenario, and by plugging $\hat\sigma_0^2 = \text{RSS}(k)/(n-k)$ into $\widehat{\text{ErrR}}_\text{SE}(k)$, we obtain the expression of $\tilde{\text{C}}_p(k)$. Furthermore, by analogy to the criteria discussed in Section \ref{sec:ic_fixedx} and \ref{sec:ic_randomx}, we substitute $k=p-m$ into the expressions of BIC$(k)$, GCV$(k)$ and $\tilde{\text{C}}_p(k)$, and we obtain their corresponding expressions for general linear restrictions which are denoted as BIC$(R,r)$, GCV$(R,r)$ and $\tilde{\text{C}}_p(R,r)$, respectively. Furthermore, we consider two types of the cross-validation (CV), that are the 10-fold CV (denoted as 10FCV) and leave-one-out CV (LOOCV). The LOOCV is based on the PRESS(k) statistic for variable selection problem and PRESS(R,r) for general restriction problem.
+\citep{schwarz1978estimating}, and generalized cross-validation (GCV)
+\begin{equation}
+\text{GCV}(k) = \text{RSS}(k)\frac{n^2}{(n-k)^2}.
+\label{eq:gcv_subsetselection}
+\end{equation}
+BIC is a consistent criterion, in the sense that under some conditions, if the true model is among the candidate models, the probability of selecting the true model approaches one, as the sample size becomes infinite. GCV, derived by \citet{craven1978smoothing} in the context of smoothing, is equivalent to the mean square over degrees of freedom criterion proposed by \citet{tukey1967discussion}. By comparing the expressions of \eqref{eq:gcv_subsetselection} and \eqref{eq:sp_subsetselection}, GCV and S$_p$ only differ by a multiplicative factor of $1 + k / [(n-k)(n-1)]$.
 
-In this section, we start from the variable selection problem. The candidate models include the predictors of $X$ in a nested fashion, i.e. the model with size $k$ has the first $k$ columns of $X$ ($X_1,\cdots,X_k$). We further consider general restrictions on $\beta$. The conclusion is that the AICc and RAICc provide the best predictive performances regardless the designs of $X$, for both variable selection and general restriction problems.  
+By analogy to the criteria discussed in Section \ref{sec:ic_fixedx} and \ref{sec:ic_randomx}, if we substitute $k=p-m$ into the expressions of BIC$(k)$ and GCV$(k)$, we obtain their corresponding expressions for general linear restrictions BIC$(R,r)$ and GCV$(R,r)$, respectively. We also consider two types of the cross-validation (CV): 10-fold CV (denoted as 10FCV) and leave-one-out CV (LOOCV). The LOOCV is based on the PRESS(k) statistic for the variable selection problem and PRESS(R,r) for the general restriction problem.
 
-\subsection{Setup}
-\label{sec:simulation_setup_subset}
-For the variable selection problem, we consider the following configurations of the experiment.
+
+\subsection{Random-X}
+We first consider the variable selection problem. The candidate models include the predictors of $X$ in a nested fashion, i.e. the candidate model of size $k$ includes the first $k$ columns of $X$ ($X_1,\cdots,X_k$). We describe the simulation settings reported here; description of and results from all other settings (243 configurations in total) can be found in the Online Supplemental Material\footnote{\url{https://github.com/sentian/RAICc}}, where we also provide the code to reproduce all of the simulation results in this paper. The sample sizes considered are $n\in\{40, 1000\}$, with number of predictors $p=n-1$, being close to the sample size. Predictors exhibit moderate correlation with each other of an AR(1) type (see the Online Supplemental material for further details), and the strength of the overall regression is characterized as either low (average $R^2$ on the set of true predictors roughly $20\%$) or high (average $R^2$ on the set of true predictors roughly $90\%$). The true model is either sparse (with six nonzero slopes) or dense (with $p$ nonzero slopes exhibiting diminishing strengths of coefficients; \citealp{Taddy2017}). The design matrix $X$ is random. In each replication, we generate a matrix $X$ such that the rows $x_i$ ($i=1,\cdots,n$) are drawn from a $p$-dimensional multivariate normal distribution with mean zero and covariance matrix $\Sigma_0$, and we draw the response $y$ from the conditional distribution of $y|X$ based on \eqref{eq:truemodel}. The entire process is repeated $1000$ times. 
+
+We consider the following metrics to evaluate the fit. The values of each criterion over all of the simulation runs are plotted using side-by-side boxplots, with the average value over the simulation runs given below the boxplot for the corresponding criterion.
 \begin{itemize}
-	\item Sample size: $n \in \{40, 200, 1000\}$.
-	\item Number of predictors: $p \in \{12, n/2, n-4\}$.
-	\item Correlation of predictors: $\rho \in \{0,0.5,0.9\}$.
-	\item Signal level: low, medium and high. The average oracle $R^2$ (linear regression on the set of true predictors) corresponding to these three signal levels are roughly $20\%$, $50\%$ and $90\%$, respectively.
-	\item The correlation structure $\Sigma_0$ (entries are $\sigma_{0,ij}$ where $\sigma_{0,ii}=1$ for $i=1,\cdots,p$) and true coefficient vector $\beta_0$ include the following scenarios:
-	\begin{itemize}
-		\item Sparse-Ex1: \textbf{All of the predictors (both signal and noise) are correlated.} We take $\sigma_{0,ij}=\rho^{|i-j|}$ for $i,j\in\{1,\cdots,p\}\times\{1,\cdots,p\}$. $\beta_0=[3.5,3,2.5,2,1.5,1,0_{p-6}]^T$. 
-		\item Sparse-Ex2: \textbf{Signal predictors are only correlated with signal predictors, and noise predictors are only correlated with noise predictors.} We take $\sigma_{0,ij}=\sigma_{0,ji}=\rho$ for $1\le i <j \le 6$ and $7\le i <j \le p$. Other off-diagonal elements in $\Sigma_0$ are zero. $\beta_0=[1,1,3,3,5,5,0_{p-6}]^T$.
-		%\item Sparse-Ex3: \textbf{Signal predictors are pairwise correlated with noise predictors.} We take $\sigma_{0,ij}=\sigma_{0,ji}=\rho$ for $1\le i \le 6$ and $j=6+i$. Other off-diagonal elements in $\Sigma_0$ are zero. $\beta_0=[1_6,0_{p-6}]^T$.
-		%\item Sparse-Ex4: \textbf{Signal predictors are pairwise correlated with opposite effects.} We take $\sigma_{0,ij}=\sigma_{0,ji}=\rho$ for $1\le i <j \le 6$. Other off-diagonal elements in $\Sigma_0$ are zero. $\beta_0=[1,-1,3,-3,5,-5,0_{p-6}]^T$.
-		\item Dense-Ex1 \citep{Taddy2017}: \textbf{Same correlation structure as Sparse-Ex1, but with diminishing strengths of coefficients}. The true coefficient vector has: $\beta_{0,j} = \displaystyle (-1)^j \exp(-\frac{j}{\kappa})$, $j=1,\cdots,p$, and here $\kappa=10$.
-		%\item Dense-Ex2: \textbf{Same setup as Dense-Ex1, but with slower decay}. Here we take $\kappa=50$.
-	\end{itemize}
-  \item Design matrix $X$: fixed-X and random-X.
-\end{itemize}
-
-For the general restriction problem, we consider the following configurations.
-\begin{itemize}
-  \item Sample size: $n \in \{10, 100, 500\}$.
-  \item Number of predictors: $p=6$.
-  \item Correlation of predictors: $\rho \in \{0,0.5,0.9\}$.
-  \item Signal level: low, medium and high. The average oracle $R^2$ (linear regression on the set of true predictors) corresponding to these three signal levels are roughly $20\%$, $50\%$ and $90\%$, respectively.
-  \item The entries of the covariance matrix $\Sigma_0$: $\sigma_{0,ij}=\rho^{|i-j|}$ for $i,j\in\{1,\cdots,p\}\times\{1,\cdots,p\}$.
-  \item The true coefficient vector:
-  \begin{itemize}
-    \item Ex1: $\beta_0 = [2,2,2,1,1,1]^T$. 
-    \item Ex2: $\beta_0 = [-2,2,2,-1.5,-1.5,1]^T$.
-    \item Ex3: $\beta_0 = [2,-2,1,-1,0.5,-0.5]^T$.
-  \end{itemize}
-  \item Restrictions:
-  \begin{itemize}
-    \item Ex1: 
-    \begin{itemize}
-      \item Correct: $\beta_1=\beta_2$, $\beta_2=\beta_3$, $\beta_4=\beta_5$, $\beta_5=\beta_6$, $\beta_1=2\beta_4$
-      \item Wrong: $\beta_1=\beta_4$, $\beta_2=\beta_5$, $\beta_3=\beta_6$, $\beta_1=2\beta_2$, $\beta_2=2\beta_3$
-    \end{itemize}
-    \item Ex2:
-    \begin{itemize}
-      \item Correct: $\beta_1=-\beta_2$, $\beta_1=-\beta_3$, $\beta_3=2\beta_6$, $\beta_4=\beta_5$, $\beta_3+\beta_4+\beta_5+\beta_6=0$
-      \item Wrong: $\beta_5=-\beta_6$, $\beta_4=-\beta_6$, $\beta_4=2\beta_1$, $\beta_1=\beta_2$, $\beta_1+\beta_2+\beta_3+\beta_4=0$
-    \end{itemize}
-    \item Ex3: 
-    \begin{itemize}
-      \item Correct: $\beta_1=-\beta_2$, $\beta_3=-\beta_4$, $\beta_5=-\beta_6$, $\beta_1=2\beta_3$, $\beta_3=2\beta_5$
-      \item Wrong: $\beta_1=-\beta_4$, $\beta_2=-\beta_5$, $\beta_3=-\beta_6$, $\beta_1=2\beta_2$, $\beta_2=2\beta_3$
-    \end{itemize}
-    For each example, we have a series of correct and wrong restrictions, where the correct restrictions are the ones that hold for the choice of $\beta_0$. The candidate restriction set is considered by combining all the possible combinations of restrictions in the correct series and all the possible combinations of those in the wrong series. We also consider the null model (restricting all coefficients to be zero) and the full model (no restriction). In total, we have $64$ candidate restrictions.
-  \end{itemize}
-  \item Design matrix $X$: fixed-X and random-X.
-\end{itemize}
-
-
-For the random-X scenario, in each replication, we generate an $X$ where the rows $x_i$ ($i=1,\cdots,n$) are drawn from a $p$-dimensional multivariate normal distribution with mean zero and covariance matrix $\Sigma_0$, and we draw the response $y$ from the conditional distribution of $y|X$ based on \eqref{eq:truemodel}. The entire process is repeated $1000$ times. For the fixed-X scenario, we only generate $X$ once and draw $1000$ replications of $y$ based on the same $X$ and \eqref{eq:truemodel}. We consider the following metrics to evaluate the fit.
-\begin{itemize}
-	\item Squared error loss (on log scale):
-	\begin{equation*}
-  \begin{aligned}
-		\text{loglossF} &= \log\left( \frac{1}{n}\lVert X\hat{\beta} - X\beta_0 \rVert_2^2 \right).\\
-    \text{loglossR} &= \log\left( E_{X^n} \lVert X^n\hat\beta-X^n\beta_0 \rVert_2^2 \right) = \log\left( (\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0) \right).
-  \end{aligned}
-	\end{equation*}
-  loglossF and loglossR are the fixed-X and random-X versions of the loss on the log scale, respectively. 
-  \iffalse
-	\item Relative risk:
-	\begin{equation*}
-		\text{RR}(\hat{\beta}) = \frac{E_{X^n} \lVert X^n\hat\beta-X^n\beta_0 \rVert_2^2}{E_{X^n} \lVert X^n\beta_0 \rVert_2^2} = \frac{(\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0)}{\beta_0^T \Sigma_0 \beta_0}.
-	\end{equation*}
-	\item Relative test error:
-	\begin{equation*}
-		\text{RTE}(\hat{\beta}) = \frac{E_{X^n,y^n} \lVert y^n - X^n\hat\beta \rVert_2^2}{\sigma_0^2}= \frac{(\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0) + \sigma_0^2}{\sigma_0^2}.
-	\end{equation*}
-	\item Proportion of variance explained: 
-	\begin{equation*}
-		\text{PVE}(\hat{\beta}) = 1 - \frac{E_{X^n,y^n} \lVert y^n- X^n\hat\beta \rVert_2^2}{\text{Tr}\left( \text{Cov}_{y^n} (y^n) \right)}= 1-\frac{(\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0)+\sigma_0^2}{\beta_0^T \Sigma_0 \beta_0 + \sigma_0^2}.
-	\end{equation*}
-  \fi
-	\item KL discrepancy (on log scale): logKLF and logKLR are the fixed-X and random-X versions of the KL on the log scale, where the expressions KL are given in \eqref{eq:KLF} and \eqref{eq:KLR}, respectively.
-  \iffalse
+  \item Root mean squared error for random-X:
   \begin{equation*}
-  \begin{aligned}
-    \text{KLF} &= \text{KLF}(\hat\beta)  \\
-    %&= \log\left( \frac{n\log(2\pi\lVert y-X\hat\beta \rVert_2^2 /n) + n\lVert X\hat{\beta} - X\beta_0 \rVert_2^2/\lVert y-X\hat\beta \rVert_2^2+n^2 \sigma_0^2 / \lVert y-X\hat\beta \rVert_2^2}{n\log(2\pi\lVert y \rVert_2^2 /n) + n\lVert X\beta_0 \rVert_2^2/\lVert y \rVert_2^2+n^2 \sigma_0^2 / \lVert y \rVert_2^2} \right).\\
-    \text{KLR} &= \text{KLR}(\hat\beta) 
-    %&= \log\left(\frac{n\log(2\pi\lVert y-X\hat\beta \rVert_2^2 /n) + n^2 (\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0)/\lVert y-X\hat\beta \rVert_2^2+n^2 \sigma_0^2 / \lVert y-X\hat\beta \rVert_2^2}{n\log(2\pi\lVert y \rVert_2^2 /n) + n^2 \beta_0^T \Sigma_0 \beta_0/\lVert y \rVert_2^2+n^2 \sigma_0^2 / \lVert y \rVert_2^2} \right).
-  \end{aligned}
-  \end{equation*}
-  \fi
-  %Note that $\widetilde{\text{ErrR}}$ is obtained ErrR, by removing the terms that do not change when we compare two models ($np\log(2\pi)$, $n\log|\hat{\Sigma}|$ and $n\text{Tr}(\hat\Sigma^{-1}\Sigma_{0})$). We find that for large $n$ and $p$, these terms dominate the values of ErrR, and make it hard to differentiate the performances of two models as they appear in the criteria of both models. 
-	\item Size of the subset selected for the variable selection problem, and number of restrictions given by the selected model for the general restriction problem.
+    \text{RMSER} = \sqrt{ E_{X^n} \lVert X^n\hat\beta-X^n\beta_0 \rVert_2^2 } =  \sqrt{ (\hat{\beta}-\beta_0)^T \Sigma_0 (\hat{\beta}-\beta_0) }.
+  \end{equation*} 
+
+  \item KL discrepancy for random-X \eqref{eq:KLR} in the log scale (denoted as logKLR).
+
+  \item Size of the subset selected.
 \end{itemize}
-There are in total $486$ scenarios for the variable selection problem, and $162$ scenarios for the general restriction problem. The full set of simulation results is presented in the Supplemental Material. 
+
+The results are presented in Figures \ref{fig:subsetselection_randomx_hsnr_largep} and \ref{fig:subsetselection_randomx_lsnr_largep}. We find that RAICc provides the best predictive performance and the sparsest subset while rarely underfitting, compared to other information criteria designed for random-X, including RC$_p$ and S$_p$. The underperformance of RC$_p$ and S$_p$ is due to overfitting. S$_p$, as an estimate of the squared prediction error, is a product of an unlogged residual sum of squares and a penalty term that is increasing in $k$. This results in higher variability in S$_p$ for models that overfit, thereby potentially increasing the chances for spurious minima of these criteria at models that drastically overfit. In RAICc, on the other hand, the residual sum of squares is logged, thereby stabilizing the variance and avoiding the problem. RC$_p$ drastically overfits in all scenarios, reflecting the price of estimating $\sigma_0^2$ using the full model, especially when $p$ is close to $n$. S$_p$, on the other hand, estimates $\sigma_0^2$ using the candidate model, which mitigates the problem. Nevertheless, S$_p$ also can sometimes strongly overfit, but only when $n$ is small. Even for large $n$, S$_p$ selects slightly larger subsets on average than does RAICc. 
+
+We also note that information criteria designed for random-X generally perform better than their counterparts for the fixed-X case. Both C$_p$ and FPE are largely outperformed by RC$_p$ and S$_p$, respectively. The advantage of RAICc over AICc is statistically significant in most scenarios, based on the Wilcoxon signed-rank test (the $p$-value for the test comparing the criteria for RAICc and AICc is given above the first two boxes in the first two columns of the table), but is not obvious in a practical sense. The only place that we see an advantage of AICc is for \{Dense model, $n=40$ and high signal\}. In this scenario, a model with many predictors with nonzero slopes can predict well, but that advantage disappears when there is a relatively weak signal, as in that situation the added noise from including predictors with small slopes cannot be overcome by a small error variance. 
+
+We further note that choosing the appropriate family of information criteria (the KL-based AICc and RAICc) is more important than choosing the information criteria designed for the underlying designs of $X$. AICc, despite being designed for fixed-X, outperforms RC$_p$ and S$_p$, which are designed for random-X in all of the scenarios, in terms of both predictive performance and providing sparse results. The KL-based criteria have a clear advantage compared to the squared-error based criteria.
+
+Finally, we note some other findings that have been discussed previously in the literature. Despite its apparently strong penalty, BIC often chooses the model using all predictors when $n$ is close to $p$, as discussed in \citet{hurvich1989regression} and \citet{baraud2009gaussian}. We also see that even though GCV has a similar penalty term as S$_p$, it is more likely to suffer from overfitting. Unlike S$_p$, GCV can sometimes drastically overfit even when $n$ is large. The overfitting problem of GCV was also observed in the context of smoothing by \citet{hurvich1998smoothing}. We further find that 10-fold CV performs better than LOOCV, the latter of which sometimes drastically overfits. The tendency of LOOCV to strongly overfit was noted by \citet{scott1987biased} and \citet{hall1991local} in the context of smoothing. \citet{zhang2015cross} showed that when applied as selection rules, the larger validation set used by 10-fold CV can better distinguish the candidate models than can LOOCV, and this results in a model with smaller predictive error. RAICc performs better than 10-fold CV for small $n$, and performs similarly for large $n$. Computationally, 10-fold CV is ten times more expensive compared to RAICc, and since the split of validation samples is random, 10-fold CV can select different subsets if applied multiple times on the same dataset. The fact that LOOCV provides better estimate of the test error while being outperformed by 10-fold CV, further emphasizes the difference between the goal of providing the best estimate of the test error, and the goal of selecting the models with the best predictive performance. Clearly, KL-based criteria (AICc and RAICc) bridge the gap between the two goals more effectively than the squared-error based criteria (including cross-validation).
+
+In a related study by \citet{leeb2008evaluation}, the author found that S$_p$ and GCV outperform AICc under random-X, but those results are not directly comparable to ours. That paper did not consider the case where $p$ is extremely close to $n$, which is the scenario that most separates the performances of the different criteria. 
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\textwidth]{figures/main/randomx_VS_hsnr.eps}
+  \caption{Results of simulations for variable selection. Random-X, high signal and $\rho=0.5$. The Sparse and Dense models correspond to the VS-Ex2 and VS-Ex3 configurations (details are given in the Online Supplemental Material). The first column refers to RMSE, the second column corresponds to KL discrepancy (in log scale), and the third column gives the number of variables in the selected model with nonzero slopes, jittered horizontally and vertically, so the number of models with that number of nonzero slopes can be ascertained more easily. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
+  \label{fig:subsetselection_randomx_hsnr_largep}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\textwidth]{figures/main/randomx_VS_lsnr.eps}
+  \caption{Results of simulations for variable selection. Random-X, low signal and $\rho=0.5$. }
+  \label{fig:subsetselection_randomx_lsnr_largep}
+\end{figure}
+
+We next consider the general restriction problem. We take $\beta_0 = [2,2,2,1,1,1]^T$, $n\in\{10,40\}$, moderate correlations between the predictors, and either high or low signal levels. The candidate models are constructed in the following way. We consider a set of restrictions: $\beta_1=\beta_4$, $\beta_1=2\beta_2$, $\beta_1=\beta_2$, $\beta_2=\beta_3$, $\beta_4=\beta_5$, $\beta_5=\beta_6$, where the last four restrictions hold for our choice of $\beta_0$. We then consider all of the possible subsets of the six restrictions, resulting in $64$ candidate models in total. The detailed configurations and complete results for this and other examples of the general restriction problem ($54$ scenarios in total) are given in the Online Supplemental Material. 
+
+We see from Figure \ref{fig:generalrestriction_randomx} that differences in performance between the criteria are less dramatic. This is not surprising, since for these models the number of parameters never approaches the sample size. Still, RAICc is consistently the best selection rule for small sample size $n$, and it is second-best for large $n$, where it is outperformed by BIC (note that BIC has a strong tendency to select too few restrictions when the sample is small, which corresponds to overfitting in the variable selection context). We also note an advantage of RAICc over AICc, with AICc having a stronger tendency to select too few restrictions.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\textwidth]{figures/main/randomx_GR-Ex1.eps}
+  \caption{Results of simulations for general restrictions. Random-X, $\rho=0.5$. The configuration of the model is GR-Ex1 (details can be found in the Online Supplemental Material). Third column gives the number of variables in the number of restrictions in the selected models, jittered horizontally and vertically, so the number of models with that number of imposed restrictions can be ascertained more easily. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
+  \label{fig:generalrestriction_randomx}
+\end{figure}
+
+Finally, we extend the general restriction example by including restrictions that force additional predictors to have zero coefficients (as in the variable selection problem). Besides the six restrictions specified, we also consider $\beta_i=0$ for $i=7,\cdots,p$ resulting in $p$ possible restrictions in total. The candidate models are formulated by excluding the restrictions in a nested fashion. We start from the model including all $p$ restrictions (corresponding to the null model), and the next model includes the $p-1$ restrictions except the first one $\beta_1=\beta_4$. The process is repeated until all restrictions are excluded (the full model including all predictors with arbitrary slopes) resulting in $p+1$ candidate models in total. The true coefficient vector is the same as that used in Figure \ref{fig:generalrestriction_randomx}, implying that the correct number of restrictions is $p-2$. We present the detailed configurations and complete results for this and other examples ($243$ scenarios in total) in the Online Supplemental Material. 
+
+We see from Figure \ref{fig:subsetgeneral_randomx} that our findings for the variable selection problem also hold in this case. This is not surprising, since variable selection is just a special example of general restrictions, and in this scenario the set of candidate models includes ones where the number of parameters is close to the sample size. Thus, overall, RAICc and AICc are the best performers among all of the selectors. RAICc tends to provide the sparsest subset (or select more restrictions), while rarely underfitting, having a slight advantage over AICc in terms of predictive performance. 
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\textwidth]{figures/main/randomx_GR-Ex4.eps}
+  \caption{Results of simulations for general restrictions. Random-X, $\rho=0.5$. The configuration of the model is GR-Ex4 (details can be found in the Online Supplemental Material).}
+  \label{fig:subsetgeneral_randomx}
+\end{figure}
 
 \iffalse
 \subsubsection{Without a true model}
@@ -130,14 +93,6 @@ for $j=1,\cdots,p/2$ and $t=0,\cdots,n-1$. The responses are generated by $y_i=e
 \fi
 
 
-\subsection{Results for random-X}
-For the variable selection problem, we find that RAICc provides the best predictive performance and the sparsest subset, compared to other selection rules designed for random-X, including RC$_p$, S$_p$ and LOO CV. For example, we see from \ref{fig:subsetselection_randomx_hsnr_largep} and \ref{fig:subsetselection_randomx_lsnr_largep} that, RAICc performs the best with the sample size $n$ being both small and close to the dimension $p$. The only exception is when the true model is dense and the signal is high, where S$_p$ and LOO CV are better in terms of the squared loss, while RAICc is better in terms of KL. The underperformance of S$_p$ and LOO CV is result from the selection of large subsets in some of the replications. When the sample size $n$ is large, S$_p$, LOO CV and RAICc exhibit similar performances. RC$_p$ is always outperformed by the other three selection rules, regardless of the sample size. The price of estimating $\sigma_0$ as opposed to knowing it, is obvious. We also notice that the selection rules designed for random-X generally perform better than their partners for the fixed-X case. Both C$_p$ and $\tilde{\text{C}}_p$ are largely outperformed by RC$_p$ and S$_p$, respectively. The advantage of RAICc over AICc is statistically significant in most scenarios, based on the Wilcoxon signed-rank test, but is not obvious in a practical sense. Finally, we note some other findings that have been discussed in the existing literatures. BIC has a high chance to select the full model when $n$ is close to $p$, and the overfitting issue of BIC was discussed in \citet{baraud2009gaussian}. We also see that GCV performs largely the same compared to S$_p$, due to the similarity of their penalty terms. 10-fold CV performs slightly better than LOO CV especially when $n$ is small. \citet{zhang2015cross} showed that when applied as selection rules, the larger validation set given by 10-fold CV can better distinguish the candidates and results in a better model. 
-
-In a related study by \citet{leeb2008evaluation}, the author showed that S$_p$ and GCV outperform AICc under the random-X design. We find that his results are not directly comparable to ours. First, all of his results are based on estimating a squared error-based testing error, while AICc is estimating the KL-based testing error. As we noted that, the squared error-based metric can lead to different conclusions compared to KL. Also, in the simulation studies, the author did not consider the case where $p$ is close to $n$, which in our opinion is exactly the scenario that separates the performances of various criteria. 
-
-For the general restriction problem, we see from Figure \ref{fig:generalrestriction_randomx} that RAICc is the best selection rule for small sample size $n$, and it is the second to the best for large $n$ where it is outperformed by BIC. We also notice a clear advantage of RAICc over AICc when $n$ is small. Therefore, RAICc is a favorable selection rule for both variable selection and general restriction problems, under the random-X.
-
-\textcolor{red}{Some discussions regarding multiplicative penalty vs additive penalty?}
 
 \iffalse
 \begin{figure}[!ht]
@@ -155,50 +110,49 @@ For the general restriction problem, we see from Figure \ref{fig:generalrestrict
 \end{figure}
 \fi
 
-\begin{figure}[!ht]
-  \centering
-  \includegraphics[width=\textwidth]{figures/main/randomx/subset_selection/largep_hsnr.eps}
-  \caption{Random-X, high signal and $\rho=0.5$. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
-  \label{fig:subsetselection_randomx_hsnr_largep}
-\end{figure}
 
 
-\begin{figure}[!ht]
-  \centering
-  \includegraphics[width=\textwidth]{figures/main/randomx/subset_selection/largep_lsnr.eps}
-  \caption{Random-X, low signal and $\rho=0.5$. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
-  \label{fig:subsetselection_randomx_lsnr_largep}
-\end{figure}
 
-\begin{figure}[!ht]
-  \centering
-  \includegraphics[width=\textwidth]{figures/main/randomx/general_restriction/Ex1.eps}
-  \caption{Random-X, Ex1, $p=6$, $\rho=0.5$. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
-  \label{fig:generalrestriction_randomx}
-\end{figure}
+\subsection{Fixed-X}
+The simulation structure for random-X can also be applied to fixed-X. We only generate the design matrix $X$ once and draw $1000$ replications of the response vector $y$ from the conditional distribution of $y|X$ based on \eqref{eq:truemodel}. The evaluation metrics for fixed-X are as follows. The complete simulation results are given in the Online Supplemental Material. 
+\begin{itemize}
+  \item Root mean squared error for fixed-X:
+  \begin{equation*}
+    \text{RMSEF} = \sqrt{ \frac{1}{n}\lVert X\hat\beta-X\beta_0 \rVert_2^2 }.
+  \end{equation*} 
 
+  \item KL discrepancy for fixed-X \eqref{eq:KLF} in the log scale (denoted as logKLF).
 
-\subsection{Results for fixed-X}
-The comparisons of the selection rules discussed for the random-X scenario, hold for the fixed-X case as shown in Figure \ref{fig:subsetselection_fixedx_hsnr_largep}, \ref{fig:subsetselection_fixedx_lsnr_largep} and \ref{fig:generalrestriction_fixedx}. Therefore, the KL-based criteria (RAICc and AICc) are overall the best selection rules for both fixed-X and random-x designs, and RAICc has an advantage over AICc for the general restriction problem. It is surprising to see that with $X$ being fixed, selection rules designed for random-X outperform their partners for fixed-X. This may be related to the fact that providing unbiased estimates of the testing error and selecting the candidate with the best predictive performance, are different goals.  
+  \item Size of the subset selected.
+\end{itemize}
+
+The patterns for the fixed-X scenario are similar to those for random-X, as can be seen in Figures \ref{fig:subsetselection_fixedx_hsnr_largep}, \ref{fig:subsetselection_fixedx_lsnr_largep}, \ref{fig:generalrestriction_fixedx} and \ref{fig:subsetgeneral_fixedx}. In some ways this is surprising, in that the random-X versions of the criteria still seem to outperform the fixed-X versions, even though that is not the scenario for which they are designed. This seems to be related to the tendency for the fixed-X versions to overfit (or choose too few restrictions) compared to their random-X counterparts, which apparently works against the goal of selecting the candidate with best predictive performance. Otherwise, the KL-based criteria (RAICc and AICc) noticeably outperform the other criteria in general, especially $\mbox{C}_p$ and FPE, particularly for small samples.
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=\textwidth]{figures/main/fixedx/subset_selection/largep_hsnr.eps}
-  \caption{Fixed-X, high signal and $\rho=0.5$. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
+  \includegraphics[width=\textwidth]{figures/main/fixedx_VS_hsnr.eps}
+  \caption{Results of simulations for variable selection. Fixed-X, high signal. The configurations are the same as in Figure \ref{fig:subsetselection_randomx_hsnr_largep}.}
   \label{fig:subsetselection_fixedx_hsnr_largep}
 \end{figure}
 
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=\textwidth]{figures/main/fixedx/subset_selection/largep_lsnr.eps}
-  \caption{Fixed-X, low signal and $\rho=0.5$. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
+  \includegraphics[width=\textwidth]{figures/main/fixedx_VS_lsnr.eps}
+  \caption{Results of simulations for variable selection. Fixed-X, low signal. The configurations are the same as in Figure \ref{fig:subsetselection_randomx_lsnr_largep}.}
   \label{fig:subsetselection_fixedx_lsnr_largep}
 \end{figure}
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=\textwidth]{figures/main/fixedx/general_restriction/Ex1.eps}
-  \caption{Fixed-X, Ex1, $p=6$, $\rho=0.5$. The mean values of the evaluation metrics for each criterion are presented at the bottom of each graph. The p-values of the Wilcoxon signed-rank test (paired and two-sided) for comparing RAICc and AICc are also presented.}
+  \includegraphics[width=\textwidth]{figures/main/fixedx_GR-Ex1.eps}
+  \caption{Results of simulations for general restrictions. Fixed-X, GR-Ex1, $\rho=0.5$. The configurations are the same as in Figure \ref{fig:generalrestriction_randomx}.}
   \label{fig:generalrestriction_fixedx}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\textwidth]{figures/main/fixedx_GR-Ex4.eps}
+  \caption{Results of simulations for general restrictions. Fixed-X, GR-Ex4, $\rho=0.5$. The configurations are the same as in Figure \ref{fig:subsetgeneral_randomx}.}
+  \label{fig:subsetgeneral_fixedx}
 \end{figure}

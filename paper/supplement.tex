@@ -3,13 +3,13 @@
 \appendix
 \pagenumbering{arabic}
 \begin{center}
-\textbf{\large Supplemental Materials \\
-Selection of Regression Models under Linear Restrictions for Fixed and Random Designs}
+\textbf{\large Supplemental Material \\
+Selection of Regression Models under Linear Restrictions \\ for Fixed and Random Designs}
 
 Sen Tian, Clifford M. Hurvich, Jeffrey S. Simonoff
 \end{center}
 
-This document provides theoretical details of the theorems and lemmas in the paper. The complete simulation results can be viewed online\footnote{https://github.com/sentian/RAICc/blob/master/paper/simuresults_reduced.pdf}.
+This document provides theoretical details of the theorems and lemmas in the paper. The complete simulation results and the computer code to reproduce the results can be viewed online\footnote{\url{https://github.com/sentian/RAICc}}.
 
 
 
@@ -21,7 +21,7 @@ As is well known \citeponline[see, e.g.,][p.~122]{greene2003econometric},
   n\hat\sigma^2 = \lVert y-X\hat{\beta} \rVert_2^2 \sim \sigma_0^2 \chi^2(n-p+m),
   \label{eq:dist_rss}
 \end{equation}
-and 
+and by using Assumption \ref{assumption}
 \begin{equation}
 \begin{aligned}
 E_y\left(\hat{\beta} - \beta_0 \right) &= 0,\\
@@ -40,7 +40,7 @@ E_y  \left [ (\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0) \right ]
 = \text{Tr} \left[ X^T X \cdot \text{Cov}_y \left( \hat{\beta} - \beta_0 \right) \right] \\
 = \sigma_0^2 (p-m).
 \end{equation*}
-We next show that $\hat{\sigma}^2$ and $(\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0)$ are independent. Define an idempotent matrix $H_R=(X^T X)^{-1} R^T \left[ R (X^T X)^{-1} R^T \right]^{-1} R$. Recall that another two idempotent matrices are defined as $H=X(X^T X)^{-1} X^T$ and $H_Q = X H_R (X^T X)^{-1} X^T$, respectively. We have
+We next show that $\hat{\sigma}^2$ and $(\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0)$ are independent. Define the idempotent matrix $H_R=(X^T X)^{-1} R^T \left[ R (X^T X)^{-1} R^T \right]^{-1} R$. Recall that two other idempotent matrices are defined as $H=X(X^T X)^{-1} X^T$ and $H_Q = X H_R (X^T X)^{-1} X^T$, respectively. We have
 \begin{equation*}
 \begin{aligned}
 y-X\hat{\beta}^f &= (I-H)\epsilon,\\
@@ -48,7 +48,7 @@ X\hat{\beta}^f - X\hat{\beta} &= XH_R(\hat{\beta}^f - \beta_0) =H_Q \epsilon,\\
 X\hat{\beta} - X\beta_0 &= X(I-H_R)(\hat{\beta}^f - \beta_0) = (H-H_Q) \epsilon,
 \end{aligned}
 \end{equation*}
-where we use the fact that $\hat{\beta}^f - \beta_0 = (X^T X)^{-1}X^T \epsilon$. Also since $HH_Q=H_QH=H_Q$, any two of the three idempotent symmetric matrices $I-H$, $H_Q$ and $H-H_Q$ have product zero. Then by the Craig's Theorem \citeponline{craig1943note} on the independence of two quadratic forms in a normal vector, 
+where we use the fact that $\hat{\beta}^f - \beta_0 = (X^T X)^{-1}X^T \epsilon$. Also since $HH_Q=H_QH=H_Q$, any two of the three idempotent symmetric matrices $I-H$, $H_Q$ and $H-H_Q$ have product zero. Then by Craig's Theorem \citeponline{craig1943note} on the independence of two quadratic forms in a normal vector, 
 \begin{equation*}
 n\hat{\sigma}^2 = \lVert y-X\hat{\beta} \rVert_2^2 = \lVert y-X\hat{\beta}^f \rVert_2^2 + \lVert X\hat{\beta}^f - X\hat{\beta} \rVert_2^2 = \epsilon^T (I-H) \epsilon + \epsilon^T H_Q \epsilon
 \end{equation*}
@@ -87,7 +87,7 @@ Using the expression of $\hat\beta$ \eqref{eq:betahat_sigmahatsq} and the defini
 \begin{equation*}
 \hat{\mu} = X\hat{\beta} = (H-H_Q)y + X(X^T X)^{-1} R^T \left[ R(X^TX)^{-1}R^T  \right]^{-1}r,
 \end{equation*}
-where the second term on the RHS is deterministic. Denote $h_i$ and ${h_Q}_i$ as the $i$-th rows of $H$ and $H_Q$, respectively. We then have
+where the second term on the right-hand side is deterministic. Denote $h_i$ and ${h_Q}_i$ as the $i$-th rows of $H$ and $H_Q$, respectively. We then have
 \begin{equation*}
 \text{Cov}_y \left(\hat{\mu}_i, y_i \right) = \text{Cov}_y \left[ (h_i-{h_Q}_i)y, y_i  \right] = \text{Cov}_y \left[ (H_{ii}-{H_Q}_{ii})y_i, y_i \right] = \sigma_0^2 (H_{ii}-{H_Q}_{ii}).
 \end{equation*}
@@ -122,7 +122,7 @@ In order to calculate $\displaystyle E_{X,y}  \left [ (\hat \beta-\beta_0)^T \Si
 \begin{equation*}
 y = X \beta_0 + \epsilon = \tilde{X} \tilde{\beta}_0 + \epsilon,
 \end{equation*}
-with restrictions $\tilde{M} \tilde{\beta}_0 = r$ where $\tilde{X} = X \tilde{R}^T$, $\tilde{\beta}_0 = \tilde{R}^{T^{-1}} \beta_0$ and $\tilde{M} = R \tilde{R}^T$. The approximating model is
+where $\tilde{X} = X \tilde{R}^T$, $\tilde{\beta}_0 = \tilde{R}^{T^{-1}} \beta_0$. Denote $\tilde{M} = R \tilde{R}^T$. Assumption \ref{assumption} indicates that the true model in the new basis satisfies $\tilde{M} \tilde{\beta}_0 = r$. The approximating model is
 \begin{equation*}
 y = X \beta + u = \tilde{X} \tilde{\beta} + u,
 \end{equation*}
@@ -138,7 +138,7 @@ and it can be easily verified that $\hat{\tilde{\beta}} = \tilde{R}^{T^{-1}} \ha
 \end{aligned}
 \label{eq:betahat_tilde_partition}
 \end{equation}
-where $\tilde{r} = (R R^T)^{-1}r$. The restriction $\tilde{M}\tilde{\beta}_0=r$ results in $\tilde{\beta}_{0,m} = \tilde{r}$. We then have 
+where $\tilde{r} = (R R^T)^{-1}r$. The restrictions $\tilde{M}\tilde{\beta}_0=r$ results in $\tilde{\beta}_{0,m} = \tilde{r}$. We then have 
 \begin{equation*}
 \hat{\tilde{\beta}}_{p-m} - \tilde{\beta}_{0,p-m} = \left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \tilde{X}_{p-m} ^T \epsilon,
 \end{equation*}
@@ -146,7 +146,7 @@ and therefore
 \begin{equation*}
 \hat{\tilde{\beta}}_{p-m} - \tilde{\beta}_{0,p-m} \big | \tilde{X} \sim \mathcal{N} \left(0, \sigma_0^2 \left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1} \right).
 \end{equation*}
-We also note that $\tilde{X}_{p-m} = X {R^c}^T$, and hence the rows $\tilde{x}_{p-m, i}$ of $\tilde{X}_{p-m}$ are independent and satisfy $\tilde{x}_{p-m, i} \sim \mathcal{N} \left( 0, R^c \Sigma_0 {R^c}^T \right)$. We then have that $\left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1}$ follows the inverse Wishart distribution $W^{-1}( R^c \Sigma_0 {R^c}^T, n)$. The expectation of the quadratic form can be derived as
+We also note that $\tilde{X}_{p-m} = X {R^c}^T$, and hence the rows $\tilde{x}_{p-m, i}$ of $\tilde{X}_{p-m}$, are independent and satisfy $\tilde{x}_{p-m, i} \sim \mathcal{N} \left( 0, R^c \Sigma_0 {R^c}^T \right)$. We then have that $\left( \tilde{X}_{p-m}^T \tilde{X}_{p-m} \right)^{-1}$ follows the inverse Wishart distribution $W^{-1}( R^c \Sigma_0 {R^c}^T, n)$. The expectation of the quadratic form can be derived as
 \begin{equation*}
 \begin{aligned}
 E_{X,y}  \left [ (\hat \beta-\beta_0)^T \Sigma_0 (\hat \beta-\beta_0) \right ] 
@@ -172,7 +172,7 @@ The expected KL can be derived as
 &= E_{X,y} \left [ n\log (2\pi \hat \sigma^2) \right ] +  n \frac{n(n-1)}{(n-p+m-2)(n-p+m-1)} + E \left [ n\log |\hat \Sigma| \right ] + np\log(2\pi) + n \frac{np}{n-p-1},
 \end{aligned}
 \end{equation*}
-where the second equality is based on Lemma \ref{thm:components_ekl_lr_randomx} for the independence of $\hat\sigma^2$ and $(\hat\beta-\beta_0)^T \Sigma_0 (\hat\beta-\beta_0)$ conditionally on $X$, and in the last equality we use results from Lemma \ref{thm:components_ekl_lr_fixedx} and \ref{thm:components_ekl_lr_randomx}. Since the training error is
+where the second equality is based on Lemma \ref{thm:components_ekl_lr_randomx} for the independence of $\hat\sigma^2$ and $(\hat\beta-\beta_0)^T \Sigma_0 (\hat\beta-\beta_0)$ conditionally on $X$, and in the last equality we use results from Lemmas \ref{thm:components_ekl_lr_fixedx} and \ref{thm:components_ekl_lr_randomx}. Since the training error is
 \begin{equation*}
 \text{errR}_\text{KL} = -2\log L(\hat\beta,\hat\sigma^2,\hat\Sigma|X,y) = \left [ n \log (2\pi \hat\sigma^2) + n \right ] + \left [np \log(2\pi) + n \log |\hat\Sigma| + np \right ],
 \end{equation*}
@@ -198,7 +198,7 @@ Based on formula 6 and proposition 1 in \citetonline{rosset2020fixed}, the expec
 \begin{equation*}
 E_{X,y}(\text{optR}_\text{SE}) = E_{X,y}(\text{optF}_\text{SE}) + B^+ + V^+ = 2 \sigma_0^2(p-m) +  B^+ + V^+,
 \end{equation*}
-where $B^+$ and $V^+$ are the excess bias and excess variance of the fit. In particular, the excessed bias is defined as
+where $B^+$ and $V^+$ are the excess bias and excess variance of the fit. In particular, the excess bias is defined as
 \begin{equation*}
 B^+ = E_{X,X^{(n)}} \big\lVert E( X^{(n)} \hat{\beta} \big | X, X^{(n)} ) - X^{(n)} \beta_0 \big\rVert_2^2 - E_X \big\lVert E( X \hat{\beta} \big | X ) - X \beta_0 \big\rVert_2^2.
 \end{equation*}
@@ -206,11 +206,11 @@ Because of our assumption that the true model satisfies the restrictions, it fol
 \begin{equation*}
 V^+ = E_{X,X^{(n)}} \left\{ \text{Tr} \left[ \text{Cov}\left( X^{(n)}\hat{\beta} \big | X, X^{(n)} \right) \right] \right\} - E_X \left\{ \text{Tr} \left[ \text{Cov}\left( X\hat{\beta} \big | X \right)  \right] \right\}.
 \end{equation*}
-The second term on the RHS is
+The second term on the right-hand side is
 \begin{equation*}
 E_X \left\{  \text{Tr} \left[ \text{Cov} \left( X\hat{\beta} \big | X \right)  \right] \right\} = E_X \left\{ \text{Tr} \left[ \text{Cov} \left( (H-H_Q)y \big | X \right)  \right] \right\} = E\left\{  \sigma_0^2 \text{Tr} \left( H-H_Q  \right) \right\}= \sigma_0^2 (p-m).
 \end{equation*}
-The first term on the RHS is
+The first term on the right-hand side is
 \begin{equation*}
 \begin{aligned}
 & E_{X,X^{(n)}} \text{Tr} \left[ \text{Cov}\left( X^{(n)}\hat{\beta} \big | X, X^{(n)} \right) \right] \\
@@ -235,6 +235,7 @@ E_{X,y}(\text{optR}_\text{SE}) = 2\sigma_0^2 (p-m) + \sigma_0^2\frac{(p-m)(p-m+1
 
 \section{Derivation of the expression of \texorpdfstring{$\hat{\tilde{\beta}}$}{} in \eqref{eq:betahat_tilde_partition} }
 \label{sec:derivation_betahattilde}
+
 Denote $\tilde{H}_m = \tilde{X}_m \left(\tilde{X}_m^T \tilde{X}_m \right)^{-1} \tilde{X}_m^T$ and $\tilde{H}_{p-m} = \tilde{X}_{p-m} \left(\tilde{X}_{p-m}^T \tilde{X}_{p-m}\right)^{-1} \tilde{X}_{p-m}^T$. Then the partitioned form of the matrix $\tilde{X}^T \tilde{X}$ is given by
 \begin{equation*}
 \begin{aligned}
@@ -419,8 +420,8 @@ E_0 \left\{ ( \hat{\beta} - \beta_0 )^T \Sigma_0 ( \hat{\beta} - \beta_0 )  \rig
 \end{aligned}
 \end{equation}
 Here $Q$ and $V$ are random. I verify in simulations that the matrix $E_0 ([0 \quad I_{p-m}] Q^T V^{-1} \Sigma_0 V^{-1} Q [0 \quad I_{p-m}]^T)$ is a diagonal matrix.
-
 \fi
+
 
 \bibliographystyleonline{chicago}
 \bibliographyonline{raicc.bib}

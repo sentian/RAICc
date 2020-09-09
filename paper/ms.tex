@@ -48,6 +48,8 @@
 \addtolength{\textheight}{0.8in}%
 \addtolength{\topmargin}{-0.8in}%
 
+% \DeclareFieldFormat{postnote}{#1}
+
 \newcommand{\irow}[1]{% inline row vector
   \big(\begin{smallmatrix}#1\end{smallmatrix}\big)%
 }
@@ -68,6 +70,7 @@
 %\newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}{Lemma}
 \newtheorem*{remark}{Remark}
+\newtheorem{assumption}{Assumption}
 
 \newcommand{\N}{{\mathbb{N}}}  % the natural numbers
 \newcommand{\Z}{{\mathbb{Z}}}  % the integers
@@ -77,6 +80,7 @@
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
+
 
 \begin{document}
 
@@ -102,6 +106,7 @@
 \clearpage
 \bibliographystyle{chicago}
 %\bibliographystyle{natbib}
+
 \bibliography{raicc.bib}
 
 \include{supplement}
