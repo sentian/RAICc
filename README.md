@@ -4,7 +4,7 @@ This project studies the use of information criteria, either squared-error based
 
 This repository provides the code to reproduce the simulation results and the figures in the paper. The complete set of simulation results is presented at the [supplemental material](https://github.com/sentian/RAICc/blob/master/paper/simuresults-compressed.pdf)).
 
-The structure of the *'code'* directory is shown below. *'plots.R'* creates the figures in the paper and the supplemental material, which are saved in the folder *paper/figures*. it relies on the simulation results in the folder *'code/run_model/results'*. *'.sh'* are bash files that submit the corresponding R code to a Linux server for running in parallels.
+The structure of the *'code'* directory is shown below. *'plots.R'* creates the figures in the paper and the supplemental material, which are saved in the folder *paper/figures*. It relies on the simulation results in the folder *'code/run_model/results'*. The *'.sh'* files are bash files that submit the R code *'run.R'* to a Linux server for running the simulation configurations in parallels.
 
 ```
 ├── plots_tables
@@ -19,5 +19,5 @@ The structure of the *'code'* directory is shown below. *'plots.R'* creates the 
 │   ├── run_n1000_randomx.sh            ## bash file for HPC submission
 │   ├── run_n10n40n200_fixedx.sh        ## bash file for HPC submission
 │   └── run_n10n40n200_randomx.sh       ## bash file for HPC submission
-└── utils.R                             ## code that contains all the functions required 
+└── utils.R                             ## code that contains all the functions required
 ```
