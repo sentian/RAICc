@@ -37,7 +37,7 @@ n \sigma_0^2 E_y\left[ \frac{1}{\hat{\sigma}^2} \right] = n\frac{n}{n-p+m-2}.
 From \eqref{eq:dist_betahat}, we have
 \begin{equation*}
 E_y  \left [ (\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0) \right ] 
-= \text{Tr} \left[ X^T X \cdot \text{Cov}_y \left( \hat{\beta} - \beta_0 \right) \right] \\
+= \text{Tr} \left[ X^T X \cdot \text{Cov}_y \left( \hat{\beta} - \beta_0 \right) \right]
 = \sigma_0^2 (p-m).
 \end{equation*}
 We next show that $\hat{\sigma}^2$ and $(\hat \beta-\beta_0)^T X^T X (\hat \beta-\beta_0)$ are independent. Define the idempotent matrix $H_R=(X^T X)^{-1} R^T \left[ R (X^T X)^{-1} R^T \right]^{-1} R$. Recall that two other idempotent matrices are defined as $H=X(X^T X)^{-1} X^T$ and $H_Q = X H_R (X^T X)^{-1} X^T$, respectively. We have
@@ -77,7 +77,7 @@ Recall that
 \end{equation*}
 The expected optimism is then
 \begin{equation*}
-E_y(\text{opF}_\text{KL}) = E_y[\text{ErrF}_\text{KL} ]  -  E_y[\text{errF}_\text{KL} ] = n \frac{n+p-m}{n-p+m-2} - n.
+E_y(\text{optF}_\text{KL}) = E_y[\text{ErrF}_\text{KL} ]  -  E_y[\text{errF}_\text{KL} ] = n \frac{n+p-m}{n-p+m-2} - n.
 \end{equation*}
 \end{proof}
 
@@ -202,7 +202,7 @@ where $B^+$ and $V^+$ are the excess bias and excess variance of the fit. In par
 \begin{equation*}
 B^+ = E_{X,X^{(n)}} \big\lVert E( X^{(n)} \hat{\beta} \big | X, X^{(n)} ) - X^{(n)} \beta_0 \big\rVert_2^2 - E_X \big\lVert E( X \hat{\beta} \big | X ) - X \beta_0 \big\rVert_2^2.
 \end{equation*}
-Because of our assumption that the true model satisfies the restrictions, it follows that $\hat{\beta}$ is unbiased, and hence it is easy to see that $B^+=0$. Next, $V^+$ is defined as
+Because of Assumption \ref{assumption} that the true model satisfies the restrictions, it follows that $\hat{\beta}$ is unbiased, and hence it is easy to see that $B^+=0$. Next, $V^+$ is defined as
 \begin{equation*}
 V^+ = E_{X,X^{(n)}} \left\{ \text{Tr} \left[ \text{Cov}\left( X^{(n)}\hat{\beta} \big | X, X^{(n)} \right) \right] \right\} - E_X \left\{ \text{Tr} \left[ \text{Cov}\left( X\hat{\beta} \big | X \right)  \right] \right\}.
 \end{equation*}

@@ -140,8 +140,9 @@ For linear regression on a subset of predictors with size $k$, we are restrictin
 \end{equation*}
 
 \subsection{Squared error-based information criteria}
-We note from Theorem \ref{eq:EoptF_SE} that $E_y(\text{optF}_\text{SE})$ is independent of $X$. According to \citet[formula 6 and proposition 1]{rosset2020fixed}, $E_{X,y}(\text{optR}_\text{SE})$ can be decomposed into $E_y(\text{optF}_\text{SE})$ plus an excess bias term and an excess variance term. We calculate both terms for our estimator $\hat\beta$ and obtain the following theorem.
+According to \citet[formula 6 and proposition 1]{rosset2020fixed}, $E_{X,y}(\text{optR}_\text{SE})$ can be decomposed into $E_{X,y}(\text{optF}_\text{SE})$ plus an excess bias term and an excess variance term. We calculate both terms for our estimator $\hat\beta$ and obtain the following theorem.
 \begin{theorem}
+Under Assumption \ref{assumption},
 \begin{equation*}
 E_{X,y}(\text{optR}_\text{SE}) = \sigma_0^2(p-m) \left( 2+ \frac{p-m+1}{n-p+m-1} \right).
 \end{equation*}

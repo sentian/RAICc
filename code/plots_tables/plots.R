@@ -3,14 +3,14 @@ library(grid)
 library(gridExtra)
 library(ggsignif)
 
-# base = "/Users/sentian/Dropbox/Sen/Research/Model_selection/RAICc"
-base = "/Volumes/HDD/Dropbox/Sen/Research/Model_selection/RAICc"
+## Specify the directories 
+base = getwd()
 base_plots = paste0(base, '/paper/figures')
-base_results = paste0(base, "/code/run_model/results")
-## Create the directory to save the plots
+base_results = paste0(base, "/code/run_model/results") # the directory where simulation results are stored
+## Create the directory 
 dir.create(base_plots, recursive = TRUE)
 
-### Functions to be used throughout this file 
+## Functions to be used throughout this file 
 source(paste0(base, '/code/utils.R'))
 
 ## Extract the legend of a ggplot object
@@ -36,13 +36,9 @@ plot.subsetselection <- function( snr_name, type.x ){
   if(type.x == "fixedx"){
     metrics = c("sqrtlossF", "logKLF", "nvar")
     metrics_names = c("RMSE for fixed-X (RMSEF)", "KL for fixed-X in log scale (logKLF)", "Size of the Selected Subset")
-    # metrics = c("lossF", "KLF", "nvar")
-    # metrics_names = c("Loss for fixed-X (lossF)", "KL for fixed-X (KLF)", "Size of the Selected Subset")
   }else{
     metrics = c("sqrtlossR", "logKLR", "nvar")
     metrics_names = c("RMSE for random-X (RMSER)", "KL for random-X in log scale (logKLR)", "Size of the Selected Subset")
-    # metrics = c("lossR", "KLR", "nvar")
-    # metrics_names = c("Loss for random-X (lossR)", "KL for random-X (KLR)", "Size of the Selected Subset")
   }
   metrics_brief = c("RMSE", "log(KL)", "# Variables")
   
@@ -87,6 +83,7 @@ plot.subsetselection <- function( snr_name, type.x ){
           means[,metrics[k]] = paste0(round(means[,metrics[k]], 2))
           
           p1 = p1 + geom_boxplot() 
+          ## Signed rank test
           p1 = p1 + geom_signif( comparisons = list(c('"RAICc"', '"AICc"')), test = "wilcox.test", map_signif_level = FALSE,
                                  test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1,
                                  color = "black", textsize=5)
@@ -95,12 +92,6 @@ plot.subsetselection <- function( snr_name, type.x ){
           }else{
             y_mean = min(df_toplot[,metrics[k]]) - sd(df_toplot[,metrics[k]])
           }
-          
-          
-          # compute lower and upper whiskers
-          #ylim1 = boxplot.stats(df_toplot[,metrics[k]])$stats[c(1, 5)]
-          # scale y limits based on ylim1
-          #p1 = p1 + coord_cartesian(ylim = ylim1)
         }else{
           means[,metrics[k]] = paste0(round(means[,metrics[k]], 1))
           
@@ -114,17 +105,10 @@ plot.subsetselection <- function( snr_name, type.x ){
             breaks = trunc( seq(0, max(df_toplot$nvar), length.out=5) ) )
         }
 
-        
-        # p1 = p1 + geom_signif( comparisons = list(c("RAICc", "AICc"), c("RAICc", "RCp"), c("RAICc", "LOO CV"), c("RAICc", "GCV")), test = "wilcox.test", map_signif_level = FALSE,
-        #                        test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1 )
-        # p1 = p1 + coord_cartesian(ylim = ylim1)
-
-        # p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), size = 5)
         p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), color="black", size = 6)
         p1 = p1 + scale_x_discrete(name = "",
                                    breaks = methods_name,
                                    labels = parse(text = methods_name)
-                                   #labels = expression("RAICc", "AICc", "RC"[p], "C"[p], "10FCV", "LOOCV", "S"[p], tilde(C)[p], "GCV", "BIC")
         )
         p1 = p1 + xlab("") + ylab(metrics_names[k])
         p1 = p1 + theme(legend.position = "none")
@@ -222,26 +206,19 @@ plot.generalrestriction <- function( type.x ){
         p1 = ggplot(df_toplot, aes_string(x="ic.type", y=metrics[k], color="group")) 
         if(metrics[k] != "nres"){
           p1 = p1 + geom_boxplot() 
+          ## Signed rank test
           p1 = p1 + geom_signif( comparisons = list(c('"RAICc"', '"AICc"')), test = "wilcox.test", map_signif_level = FALSE,
                                  test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1,
                                  color = "black", textsize = 5)
           y_mean = min(df_toplot[,metrics[k]]) - sd(df_toplot[,metrics[k]])
-          
-          # # compute lower and upper whiskers
-          # ylim1 = boxplot.stats(df_toplot[,metrics[k]])$stats[c(1, 5)]
-          # # scale y limits based on ylim1
-          # p1 = p1 + coord_cartesian(ylim = ylim1)
+
         }else{
           p1 = p1 + geom_jitter(size = 1.2)
           y_mean = -1
           p1 = p1 + scale_y_continuous(
             breaks = trunc( seq(0, max(df_toplot$nres)) ) )
         }
-        # p1 = p1 + geom_signif( comparisons = list(c("RAICc", "AICc"), c("RAICc", "RCp"), c("RAICc", "LOO CV"), c("RAICc", "GCV")), test = "wilcox.test", map_signif_level = FALSE, 
-        #                        test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1 )
-        # p1 = p1 + coord_cartesian(ylim = ylim1)
 
-        
         p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), color="black", size = 6)
         p1 = p1 + scale_x_discrete(name = "",
                                    breaks = methods_name,
@@ -281,7 +258,7 @@ plot.generalrestriction.maintext <- function(){
 }
 plot.generalrestriction.maintext()
 
-## Boxplot in the main text, for the mixed of general restriction and variable selection
+## Boxplot in the main text, for the mixture of general restriction and variable selection
 plot.generalsubset <- function( type.x ){
   ## parameters
   n = c(40, 1000)
@@ -343,6 +320,7 @@ plot.generalsubset <- function( type.x ){
           means[,metrics[k]] = paste0(round(means[,metrics[k]], 2))
           
           p1 = p1 + geom_boxplot() 
+          ## Signed rank test
           p1 = p1 + geom_signif( comparisons = list(c('"RAICc"', '"AICc"')), test = "wilcox.test", map_signif_level = FALSE,
                                  test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1,
                                  color = "black", textsize = 5)
@@ -351,12 +329,6 @@ plot.generalsubset <- function( type.x ){
           }else{
             y_mean = min(df_toplot[,metrics[k]]) - sd(df_toplot[,metrics[k]])
           }
-          
-          
-          # compute lower and upper whiskers
-          #ylim1 = boxplot.stats(df_toplot[,metrics[k]])$stats[c(1, 5)]
-          # scale y limits based on ylim1
-          #p1 = p1 + coord_cartesian(ylim = ylim1)
         }else{
           means[,metrics[k]] = paste0(round(means[,metrics[k]], 1))
           
@@ -371,13 +343,7 @@ plot.generalsubset <- function( type.x ){
           p1 = p1 + scale_y_continuous(
             breaks = trunc( seq(0, max(df_toplot$nres), length.out=5) ) )
         }
-        
-        
-        # p1 = p1 + geom_signif( comparisons = list(c("RAICc", "AICc"), c("RAICc", "RCp"), c("RAICc", "LOO CV"), c("RAICc", "GCV")), test = "wilcox.test", map_signif_level = FALSE,
-        #                        test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1 )
-        # p1 = p1 + coord_cartesian(ylim = ylim1)
-        
-        # p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), size = 5)
+
         p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), color="black", size = 6)
         p1 = p1 + scale_x_discrete(name = "",
                                    breaks = methods_name,
@@ -417,7 +383,7 @@ plot.generalsubset.maintext <- function(){
 }
 plot.generalsubset.maintext()
 
-## Boxplot in the supplemental material, for subset selection problem
+## Boxplot in the supplemental materials
 plot.subsetselection.generalsubset <- function( type.x, type, n, snr_name, rho ){
   ## parameters
   p = c(12, n/2, n-1)
@@ -487,8 +453,6 @@ plot.subsetselection.generalsubset <- function( type.x, type, n, snr_name, rho )
       if(metrics[k] %in% c("nvar", "nres")){
         p1 = p1 + geom_jitter(size = 1.2)
         y_mean = -round(p[i]/20)
-        # p1 = p1 + scale_y_continuous(
-        #   breaks = trunc( seq(0, max(df_toplot$nvar), length.out=5) ) )
       }else{
         p1 = p1 + geom_boxplot() 
         p1 = p1 + geom_signif( comparisons = list(c('"RAICc"', '"AICc"')), test = "wilcox.test", map_signif_level = FALSE,
@@ -497,15 +461,10 @@ plot.subsetselection.generalsubset <- function( type.x, type, n, snr_name, rho )
         y_mean = min(df_toplot[,metrics[k]]) - 2 * sd(df_toplot[,metrics[k]])
       }
       
-      # p1 = p1 + geom_signif( comparisons = list(c("RAICc", "AICc"), c("RAICc", "RCp"), c("RAICc", "LOO CV"), c("RAICc", "GCV")), test = "wilcox.test", map_signif_level = FALSE, 
-      #                        test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1 )
-      # p1 = p1 + coord_cartesian(ylim = ylim1)
-      
       p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), color="black", size = 5)
       p1 = p1 + scale_x_discrete(name = "",
                                  breaks = methods_name,
                                  labels = parse(text = methods_name)
-                                 #labels = expression("RAICc", "AICc", "RC"[p], "C"[p], "10FCV", "LOOCV", "S"[p], tilde(C)[p], "GCV", "BIC")
       )
       p1 = p1 + xlab("") + ylab(metrics_names[k])
       p1 = p1 + theme(legend.position = "none")
@@ -552,7 +511,6 @@ plot.generalrestriction <- function( type.x, type, n, snr_name ){
                             lapply(c("tenfold", "loo"), function(xx){c("cv", xx)}),
                             lapply(c("sp", "cphat", "gcv"), function(xx){c("ic", xx)}),
                             lapply(c("bic"), function(xx){c("ic", xx)})))
-  # methods_name = c("RAICc", "AICc", "RCp", "Cp", "10FCV", "LOOCV", "Sp", "Cptilde", "GCV", "BIC")
   methods_name = c('"RAICc"', '"AICc"', "RC[p]", "C[p]", '"10FCV"', '"LOOCV"', "S[p]", "FPE", '"GCV"', '"BIC"')
   groups = c(1, 1, 2, 2, 3, 3, 4, 4, 4, 5)
   
@@ -575,7 +533,6 @@ plot.generalrestriction <- function( type.x, type, n, snr_name ){
     df_toplot = data.frame( 
       do.call(cbind, lapply(metrics, function(metric){unlist(lapply(result_target, function(xx){xx[[metric]]}))})) 
     )
-    # df_toplot[,2] = log(df_toplot[,2])
     colnames(df_toplot) = metrics
     df_toplot$ic.type = factor( rep(methods_name, each=nrep), levels=methods_name )
     df_toplot$group = factor( rep( groups, each=nrep) )
@@ -600,9 +557,6 @@ plot.generalrestriction <- function( type.x, type, n, snr_name ){
         p1 = p1 + scale_y_continuous(
           breaks = trunc( seq(0, max(df_toplot$nres)) ) )
       }
-      # p1 = p1 + geom_signif( comparisons = list(c("RAICc", "AICc"), c("RAICc", "RCp"), c("RAICc", "LOO CV"), c("RAICc", "GCV")), test = "wilcox.test", map_signif_level = FALSE, 
-      #                        test.args=list(alternative = "two.sided", paired=TRUE, exact=FALSE), step_increase = .1 )
-      # p1 = p1 + coord_cartesian(ylim = ylim1)
       
       p1 = p1 + geom_text(data = means, aes_string(label = metrics[k], y = y_mean), color="black", size = 5)
       p1 = p1 + scale_x_discrete(name = "",
@@ -633,7 +587,7 @@ plot.generalrestriction <- function( type.x, type, n, snr_name ){
   print(pp0)
   dev.off()
 }
-
+# Generate the figures, and write a .tex file, which has the LaTeX commands to include these figures
 plot.supplement <- function(){
   ## Make plots in the supplement for the subset selection problem
   typex_name = c("Fixed-X", "Random-X")
@@ -687,131 +641,3 @@ plot.supplement <- function(){
   close(texfile)
 }
 plot.supplement()
-
-old <- function(){
-  ## Plot an example where BIC overfits
-  plot.bic.overfitting <- function(){
-    n = c(200, 2000)
-    pnratio = 0.98
-    rho = 0
-    snr = 8.5
-    names(snr) = "hsnr"
-    type = "Sparse-Ex1"
-    
-    df_toplot = list()
-    for(i in 1:length(n)){
-      p = round( n[i]*pnratio )
-      filename = paste0(type, "_n", n[i], "_p", p, "_", names(snr), "_rho", gsub("[.]","",as.character(rho)))
-      result = readRDS(paste0(base_results, "/", filename, ".rds"))
-      
-      rep = 10
-      beta_covmatrix = gen.beta.covmatrix(p, rho, type)
-      data = gen.data(n[i], snr, type, beta_covmatrix$beta, beta_covmatrix$beta0, beta_covmatrix$covmatrix, seed=rep)
-      
-      betahat = coef.nest(data$x, data$y)
-      muhat = cbind(1, data$x) %*% betahat
-      df = 1:(p+1)
-      df_toplot[[i]] = data.frame( val = c(unlist( lapply(calc.ic.all(muhat, data$y, df, data$sigma)[c("aic", "aicc", "bic")], as.numeric) ),
-                                           c(2 * (df + 1) + n[i], n[i] * (n[i] + df)/(n[i] - df - 2), log(n[i]) * (df + 1) + n[i])),
-                                   k = rep(0:p, 6),
-                                   ic.type = factor( rep(rep(c("AIC", "AICc", "BIC"), each = p+1), 2) ),
-                                   type = factor( rep(paste0(c("IC, n=", "Penalty, n="), n[i]), each = 3*(p+1)) )
-      )
-    }
-    df_toplot = do.call(rbind, df_toplot)
-    
-    p1 = ggplot() + geom_point(data=df_toplot[df_toplot$ic.type%in%c("AIC", "BIC"),], aes(y = val, x = k, colour = ic.type, shape = ic.type), stat="identity",size=2, stroke=1)
-    p1 = p1 + scale_colour_manual(name  = "",
-                                  breaks=c("AIC", "BIC"),
-                                  labels=c("AIC", "BIC"),
-                                  values=c("#F8766D", "#00BA38")) +
-      scale_shape_manual(name  = "",
-                         breaks=c("AIC", "BIC"),
-                         labels=c("AIC", "BIC"),
-                         values=c(5, 3))
-    p1 = p1 + facet_wrap(.~ type, ncol=2, scales="free")
-    p1 = p1 + theme(legend.text=element_text(size=20))
-    p1 = p1 + theme(plot.title = element_text(size = 20, face = "bold", hjust=0.5), axis.text=element_text(size=10), axis.title=element_text(size=10,face="bold"))
-    print(p1)
-    # setEPS()
-    # postscript(file=paste(base_plots, '/numvar_bs_lbs.eps',sep=""), height=3, width=6)
-    # print(p1)
-    # dev.off()
-  }
-  
-  ## Compare RAICc with AICc
-  plot.raicc.aicc.rcp.cp <- function(){
-    n = 50
-    type = "Sparse-Ex3"
-    p = 20
-    rho = 0.5
-    snr = c(8.5, 0.2)
-    names(snr) = c("hsnr", "lsnr")
-    nrep = 1000
-    beta_covmatrix = gen.beta.covmatrix(p, rho, type)
-    
-    methods_toplot = list(c("raicc", "aicc"), c("rcp", "cp"))
-    labels_toplot = list(c("RAICc", "AICc"), c("RCp", "Cp"))
-    
-    pp = list()
-    for(k in 1:length(snr)){
-      ic_all = list()
-      # r_square = c()
-      for(rep in 1:nrep){
-        data = gen.data(n, snr[k], type, beta_covmatrix$beta, beta_covmatrix$beta0, beta_covmatrix$covmatrix, seed=rep)
-        # r_square = c(r_square, summary(lm(as.numeric(data$y) ~ data$x[, which(data$beta!=0)]))$r.squared)
-        
-        betahat = coef.nest(data$x, data$y)
-        muhat = cbind(1, data$x) %*% betahat
-        # sigma_sq_hat = colSums((data$y - muhat[, ncol(muhat), drop=FALSE])^2) / (n - sum(betahat[, ncol(muhat)]!=0))
-        # use true sigma^2 here for Cp and RCp
-        sigma_sq_hat = data$sigma^2
-        ic_all[[rep]] = calc.ic.all(muhat, data$y, df=colSums(betahat!=0), sigma.sq = sigma_sq_hat) 
-      }
-      for(ii in 1:length(methods_toplot)){
-        val = do.call(c, lapply(methods_toplot[[ii]], function(method){ colMeans(do.call(rbind, lapply(ic_all, function(xx){xx[[method]]})))  }))
-        df_toplot = data.frame( val = val,
-                                ic.type = factor( rep(methods_toplot[[ii]], each=p+1) ),
-                                k = rep(0:p, length(allmethods))
-        )
-        p1 <- ggplot() + geom_point(data=df_toplot, aes(y = val, x = k, colour = ic.type, shape = ic.type), stat="identity",size=1.5)
-        p1 <- p1 + xlab("Subset size") + ylab("")
-        p1 <- p1 + scale_colour_manual(name = "",
-                                       breaks = methods_toplot[[ii]],
-                                       labels = labels_toplot[[ii]],
-                                       values = c("#F8766D", "#00BA38")) +
-          scale_shape_manual(name = "",
-                             breaks = methods_toplot[[ii]],
-                             labels = labels_toplot[[ii]],
-                             values = c(5, 3))
-        
-        p1 <- p1 + theme(legend.text=element_text(size=5),legend.position="bottom") + theme(legend.title=element_blank())
-        p1 <- p1 + theme(plot.title = element_text(size = 10, face = "bold", hjust=0.5),axis.text=element_text(size=10), axis.title=element_text(size=10,face="bold"))
-        p1 <- p1 + ggtitle(names(snr)[k])
-        pp[[ paste(methods_toplot[[ii]][2], names(snr)[k], sep=", ") ]] = p1
-      }
-    }
-    mylegend = g_legend(pp$`aicc, hsnr`)
-    setEPS()
-    postscript(file=paste(base_plots, '/raicc_aicc.eps',sep=""), height=3, width=6)
-    pp0 <- grid.arrange(arrangeGrob(pp$`aicc, hsnr` + theme(legend.position="none"),
-                                    pp$`aicc, lsnr` + theme(legend.position="none"),
-                                    nrow=1,ncol=2,heights=3),
-                        mylegend,nrow=2,heights=c(9,1))
-    print(pp0)
-    dev.off()
-    
-    mylegend = g_legend(pp$`cp, hsnr`)
-    setEPS()
-    postscript(file=paste(base_plots, '/rcp_cp.eps',sep=""), height=3, width=6)
-    pp0 <- grid.arrange(arrangeGrob(pp$`cp, hsnr` + theme(legend.position="none"),
-                                    pp$`cp, lsnr` + theme(legend.position="none"),
-                                    nrow=1,ncol=2,heights=3),
-                        mylegend,nrow=2,heights=c(9,1))
-    print(pp0)
-    dev.off()
-  }
-  plot.raicc.aicc.rcp.cp()
-}
-
-

@@ -1,18 +1,17 @@
 library(MASS)
 library(Matrix)
+
 ## Generate simulated dataset
-# generate 
 gen.beta.Sigma <- function(p, rho, type){
-  # Covariance matrix and true beta
+  
+  # Covariance matrix and true beta for each true model configuration
   Sigma = Matrix(rho^abs(outer(1:p, 1:p, "-")), sparse = TRUE)
   if(type == "VS-Ex1" ){
-    # Zhang, Li and Tsai (2010)
     beta = Matrix(c(rev(seq(1, 3.5, by=0.5)), rep(0,p-6)), ncol=1, sparse = TRUE)
   }else if(type == "VS-Ex2"){
     Sigma = bdiag(list(rho^abs(outer(1:6, 1:6, "-")), rho^abs(outer(7:p, 7:p, "-"))))
     beta = Matrix(c(c(1,1,3,3,5,5), rep(0,p-6)), ncol=1, sparse = TRUE)
   }else if(type == "VS-Ex3"){
-    Sigma = Matrix(rho^abs(outer(1:p, 1:p, "-")), sparse=TRUE)
     kappa = 10
     beta = Matrix((-1)^seq(1,p) * exp(-seq(1,p)/kappa), ncol=1, sparse = TRUE)
   }else if(type == "GR-Ex1"){
@@ -59,6 +58,7 @@ gen.beta.Sigma <- function(p, rho, type){
     r_candidate = Matrix(rep(0, p), ncol=1)
   }
   
+  # SVD of the covariance matrix Sigma
   if(rho != 0){
     obj = svd(Sigma)
     Sigma.half = Matrix(obj$u %*% (sqrt(diag(obj$d))) %*% t(obj$v), sparse=TRUE)
@@ -66,6 +66,7 @@ gen.beta.Sigma <- function(p, rho, type){
     Sigma.half = NULL
   }
   
+  # Generate a list of restrictions (R, r) from the candidates
   R_all = r_all = list()
   if(type %in% paste0("GR-Ex", seq(1,3))){
     for(i in 0:nrow(R_candidate)){
@@ -92,68 +93,26 @@ gen.beta.Sigma <- function(p, rho, type){
   return(list(beta=beta, Sigma=Sigma, Sigma.half=Sigma.half, restriction_candidate=list(R=R_all, r=r_all)))
 }
 gen.data <- function(n, p, snr, type, beta, Sigma.half, seed.x, seed.y){
+  
   # generate design matrix X
-  # for all cases except Exponential model, the X is random
-  # for the Exponential model, X is fixed
   set.seed(seed.x)
-  # x = mvrnorm(n, mu=rep(0,p), Sigma=Sigma)
   x = matrix( rnorm(n*p), nrow=n, ncol=p )
   if(!is.null(Sigma.half)){
     x = x %*% Sigma.half
   }
-  
-  # if(type == "Exponential"){
-  #   mu = Matrix(exp(4*seq(1,n) / n), ncol=1)
-  # }else{
   mu = x %*% beta
-  # }
-  
-  # # Exponential model
-  # # Trigonometric design matrix, X has orthonormal columns
-  # tmp = 2*pi*outer(1:n, 1:(p/2), "*") / n
-  # x1 = sin(tmp)
-  # x2 = cos(tmp)
-  # x = matrix(NA, nrow=n, ncol=p)
-  # x[, seq(1,p,by=2)] = x1
-  # x[, seq(2,p,by=2)] = x2
-  # x = replicate(nrep, x, simplify = FALSE)
-  # beta  = beta0 = NULL
-  # mu = exp(4*seq(1,n) / n)
-  # mu = replicate(nrep, mu, simplify = FALSE)
-  
-  # sigma = mean( unlist( lapply(mu, function(xx){ sqrt(var(xx) / snr) }) ) )
   sigma = as.numeric(sqrt(var(as.vector(mu)) / snr))
-  set.seed(seed.y)
+  
   # generate the response
+  set.seed(seed.y)
   y = mu + Matrix(rnorm(n, mean=0, sd=sigma), ncol=1)
   
-  # # Oracle R squares (regression y upon true predictors)
-  # if(print.r2){
-  #   r.squares = 0
-  #   for(rep in 1:nrep){
-  #     if(type != "Exponential"){
-  #       r.squares = r.squares + summary(lm(y[[rep]]~x[[rep]][,beta!=0]))$r.squared
-  #     }else{
-  #       r.squares = r.squares + summary(lm(y[[rep]]~x[[rep]]))$r.squared
-  #     }
-  #   }
-  #   r.squares = r.squares/nrep
-  #   print(paste("Average R squares of regressing upon true predictors is ", as.character(round(r.squares,2)),sep=""))
-  # }
-  
-  # Treat the last true predictor as missing, for the omit predictor case
-  # if(type == "Omit"){
-  #   x = x[, -6]
-  #   # beta = beta0 = NULL
-  #   beta = NULL
-  # }
-  
-  # return(list(x=x, y=y, beta=beta, beta0=beta0, mu=mu, sigma=sigma))
   return(list(x=x, y=y, mu=mu, sigma=sigma))
 }
 
-## Coefficient vectors of the nested models
+## Fit LS on the nested subsets of X
 coef.subset.nest <- function(x, y, intercept=TRUE){
+  
   n = dim(x)[1]
   p = dim(x)[2]
   maxstep = ifelse(intercept, min(n, p+1)-1, min(n, p))
@@ -171,6 +130,7 @@ coef.subset.nest <- function(x, y, intercept=TRUE){
   }
   sd_demeanedx = sqrt(colSums(x^2))
   x = scale(x, center = FALSE, scale = sd_demeanedx)
+  
   # fit LS on nested models via QR decomposition
   qr_decomp = qr(x)
   Q = qr.Q(qr_decomp)
@@ -197,22 +157,18 @@ coef.subset.nest <- function(x, y, intercept=TRUE){
   
   return(Matrix(beta_nest, sparse = TRUE))
 }
+
 ## Restricted coefficient vectors
 ## Given a set of linear restrictions, returns a matrix of coefficient estimates
-## (R, r) here are lists, they are also in pairs
+## (R, r) here are in the format of list
 coef.restrict <- function(x, y, R, r){          
   n = dim(x)[1]
   p = dim(x)[2]
   maxstep = min(n, p)
 
+  # No-restriction case
   ind_null = which( unlist(lapply(R, function(RR){dim(RR)[1]}))==0 )
-  # if(length(ind_null) > 1){
-  #   stop("only one NULL entry of R is allowed for now")
-  # }
-  # if(length(ind_null) > 0){
-  #   R[ind_null] = NULL
-  #   r[ind_null] = NULL
-  # }
+  # Calculate the coefficient vector
   xtx_inv = ginv(as.matrix(t(x) %*% x))
   # OLS estimator on the full set of data
   betahat_f = xtx_inv %*% t(x) %*% y
@@ -220,9 +176,8 @@ coef.restrict <- function(x, y, R, r){
     betahat_f + xtx_inv %*% t(RR) %*% ginv( as.matrix( RR %*% xtx_inv %*% t(RR) ) ) %*% (rr - RR %*% betahat_f)
   }
   betahat = do.call(cbind, Map(tmp_function, R[-ind_null], r[-ind_null]))
-  # if(length(ind_null) > 0){
-  #   betahat = append(betahat, list(betahat_f), after = ind_null-1)
-  # }
+
+  # Unrestricted OLS for no-restriction cases
   betahat_final = Matrix(0, nrow=maxstep, ncol=length(R))
   betahat_final[,ind_null] = matrix(rep(betahat_f, length(ind_null)), nrow=maxstep, byrow=FALSE)
   betahat_final[,-ind_null] = betahat
@@ -230,8 +185,10 @@ coef.restrict <- function(x, y, R, r){
   
   return(betahat_final)
 }
-## Combinations of general restriction and subset selection
-## This function is by no means useful in practice
+
+## Combinations of general restriction and variable selection
+## This function is by no means useful in practice.
+## The intention is to only run fast.
 ## It is built on the specific designs of the simulations
 ## e.g., the general restrictions are imposed on first six predictors
 ## while subset restrictions (setting to be zero) are imposed to the rest of predictors
@@ -240,32 +197,24 @@ coef.restrict.nest <- function(x, y, R, r){
   n = dim(x)[1]
   p = dim(x)[2]
   
-  # if(is.nest & maxstep<p){
-  #   x = x[, 1:maxstep, drop=FALSE]
-  #   R_candidate = R[[1]]
-  #   r_candidate = r[[1]]
-  #   R_candidate = R_candidate[(nrow(R_candidate)-maxstep+1):nrow(R_candidate), 1:maxstep]
-  #   r_candidate = r_candidate[(nrow(r_candidate)-maxstep+1):nrow(r_candidate), , drop=FALSE]
-  #   R = list(Matrix(, nrow=0, ncol=maxstep))
-  #   r = list(numeric(0))
-  #   R = c(R, lapply(1:maxstep, function(ii){R_candidate[1:ii, , drop=FALSE]}))
-  #   r = c(r, lapply(1:maxstep, function(ii){r_candidate[1:ii, , drop=FALSE]}))
-  #   R = rev(R)
-  #   r = rev(r)
-  # }
+  # Take the general restrictions (remove all the restrictions w.r.t. variable selection)
   R_sub = R[[1]][(nrow(R[[1]])-6+1):p, 1:6]
+  
   # Singular value decomposition
   xtx_sub = t(x[,1:6]) %*% x[,1:6]
   svd = eigen(xtx_sub)
   P = svd$vectors
   Linv = Diagonal(x=1/svd$values)
   xty_sub = t(x[,1:6]) %*% y
-  # compotents in the formula of betahat
+  
+  # Compotents in the formula of betahat
   PLinvPt = P %*% Linv %*% t(P)
   RPLinvPt = R_sub %*% PLinvPt
   RPLinvPtRt = RPLinvPt %*% t(R_sub)
   betahat_f = PLinvPt %*% xty_sub
-  # iteratively calculate the inverse of R(X^T X)^{-1}R^T, using the property of the inverse of block matrices
+  
+  # Iteratively calculate the inverse of R(X^T X)^{-1}R^T, using the property of the inverse of block matrices
+  # and calculate betahat correspondingly
   Ainv = 1 / RPLinvPtRt[1,1]
   xtxinvRt_Ainv_Rxtxinv = t(RPLinvPt[1,,drop=FALSE]) %*% Ainv %*% RPLinvPt[1,,drop=FALSE]
   betahat = Matrix(0, nrow=6, ncol=6)
@@ -277,13 +226,15 @@ coef.restrict.nest <- function(x, y, R, r){
     xtxinvRt_Ainv_Rxtxinv = t(RPLinvPt[1:i,]) %*% Ainv %*% RPLinvPt[1:i,]
     betahat[,6-i+1] = betahat_f - xtxinvRt_Ainv_Rxtxinv %*% xty_sub
   }
+  
+  # Work out the coefficients for the remaining restrictions (variable selection)
   betahat_final = coef.subset.nest(x, y, intercept = FALSE)
   betahat_final[1:6,1:6] = betahat
  
   return(betahat_final)
 }
 
-## Cross validation to choose the best candidate from the nested models
+## Cross-validation to choose the best candidate from the nested models
 cv.subset.nest <- function(x, y, n.folds=10, intercept=FALSE){
   n = dim(x)[1]
   p = dim(x)[2]
@@ -332,19 +283,21 @@ cv.subset.nest <- function(x, y, n.folds=10, intercept=FALSE){
   return(list(betahat=betahat, i.min=which.min(cv), cvm=cv))
 }
 
-## Cross validation to choose the best candidate from a sequence of restricted least squares models
+## Cross-validation to choose the best model, each of which is under a set of restrictions
 cv.restrict <- function(x, y, R, r, n.folds=10){
   n = dim(x)[1]
   p = dim(x)[2]
   
   if(n.folds == n){
+    # Use PRESS statistic for LOO-CV
+    # See Tarpey (2000) for details
     xtx_inv = solve(t(x) %*% x)
     H_base = xtx_inv %*% t(x)
     betahat_f = H_base %*% y
     H = x %*% H_base
     ind_null = which( unlist(lapply(R, function(RR){dim(RR)[1]}))==0 )
-    ## Use PRESS statistic for LOO-CV
-    ## See Tarpey (2000) for details
+    
+    # Expressions in Tarpey (2000)
     calc.H <- function(RR){
       tmp1 = xtx_inv %*% t(RR)
       tmp2 = x %*% tmp1
@@ -397,14 +350,21 @@ cv.restrict <- function(x, y, R, r, n.folds=10){
     # Fit on the full sample
     betahat = coef.restrict(x.train, y.train, R, r)
   }
+  
   return(list(betahat=betahat, i.min=which.min(cv)))
 }
 
+## Cross-validation to choose the best model, each of which is under a set of restrict.
+## Again, similar to 'coef.restrict.nest', this function is intended to run fast, 
+## and does not generally have practical value
+## It is built on knowing the first 6 restrictions are general, and the rest are variable selection
 cv.restrict.nest <- function(x, y, R, r, n.folds=10){
   n = dim(x)[1]
   p = dim(x)[2]
   
   if(n.folds == n){
+    # LOO CV
+    
     R_sub = R[[1]][(nrow(R[[1]])-6+1):p, 1:6]
     # Singular value decomposition
     xtx_sub = t(x[,1:6]) %*% x[,1:6]
@@ -412,13 +372,16 @@ cv.restrict.nest <- function(x, y, R, r, n.folds=10){
     P = svd$vectors
     Linv = Diagonal(x=1/svd$values)
     xty_sub = t(x[,1:6]) %*% y
+    
     # compotents in the formula of betahat
     PLinvPt = P %*% Linv %*% t(P)
     RPLinvPt = R_sub %*% PLinvPt
     RPLinvPtRt = RPLinvPt %*% t(R_sub)
     H_sub = x[,1:6] %*% PLinvPt %*% t(x[,1:6])
     betahat_f = PLinvPt %*% xty_sub
+    
     # iteratively calculate the inverse of R(X^T X)^{-1}R^T, using the property of the inverse of block matrices
+    # and betahat
     Ainv = 1 / RPLinvPtRt[1,1]
     xtxinvRt_Ainv_Rxtxinv = t(RPLinvPt[1,,drop=FALSE]) %*% Ainv %*% RPLinvPt[1,,drop=FALSE]
     H_Q = x[,1:6] %*% xtxinvRt_Ainv_Rxtxinv %*% t(x[,1:6])
@@ -435,7 +398,8 @@ cv.restrict.nest <- function(x, y, R, r, n.folds=10){
       betahat[,6-i+1] = betahat_f - xtxinvRt_Ainv_Rxtxinv %*% xty_sub
       cv[6-i+1] = mean( ((y - x[,1:6] %*% betahat[,6-i+1]) / (1 - diag(H_sub) + diag(H_Q)))^2 )
     }
-    #betahat_final = coef.subset.nest(x, y, intercept = FALSE)
+    
+    # calculate the CV error for the remaining restrictions
     tmp = cv.subset.nest(x, y, n.folds=n)
     tmp$betahat[1:6,1:6] = betahat
     betahat = tmp$betahat
@@ -465,7 +429,7 @@ cv.restrict.nest <- function(x, y, R, r, n.folds=10){
   return(list(betahat=betahat, i.min=which.min(cv)))
 }
 
-## Information criteria (multiple) for all the candidates from the nested models
+## Calculate a list of information criteria for the candidate models
 calc.ic.all <- function(fit, y, df, sigma.sq = NULL) {
   y = matrix(y, ncol = 1)
   df = matrix(df, nrow = 1)
@@ -505,6 +469,7 @@ eval.metrics <- function(ii, muhat, betahat, x, y, sigma, mu, beta, Sigma, m){
   
   output = list()
   output$i_allmethods = ii
+  
   ## Number of variables, Sparsistency and Number of extra variables
   output$nres = m[ii]
   output$nvar = colSums(betahat != 0)
@@ -518,6 +483,7 @@ eval.metrics <- function(ii, muhat, betahat, x, y, sigma, mu, beta, Sigma, m){
   lossR_null = as.numeric( t(beta) %*% Sigma %*% beta )
   output$rlossF = output$lossF/lossF_null
   output$rlossR = output$lossR/lossR_null
+  
   ## KL
   rss = colSums(sweep(muhat, 1, y,"-")^2)
   rss_null = sum(y^2)
@@ -537,7 +503,7 @@ eval.metrics <- function(ii, muhat, betahat, x, y, sigma, mu, beta, Sigma, m){
   return(output)
 }
 
-## Evaluate the selected subsets for all methods
+## This is the main function to fit the models and evaluate the performance
 run.all <- function(n, p, rho, snr, type, nrep, random.x=TRUE, write.to.file=FALSE){
   
   ## Specify filenames, filepaths and etc
@@ -561,25 +527,17 @@ run.all <- function(n, p, rho, snr, type, nrep, random.x=TRUE, write.to.file=FAL
   restriction.general = grepl("GR-", type)
   beta_Sigma = gen.beta.Sigma(p, rho, type)
   if(!restriction.general){
-    # filepath = paste0(filepath, "subset_selection")
-    ## Generate beta and Sigma
-    # beta_Sigma = gen.beta.Sigma(p, rho, type)
     m = p:0
   }else{
-    # filepath = paste0(filepath, "general_restriction")
-    ## Generate beta and Sigma
-    # beta_Sigma = gen.beta.Sigma.restriction(p, rho, type)
     m = unlist( lapply(beta_Sigma$restriction_candidate$R, nrow) )
   }
   is_nest = ifelse(type %in% paste0("GR-Ex", seq(4,6)), TRUE, FALSE)
 
   ## Check if some intermediate results already exist
   result = betahat_all = list()
-  if(write.to.file){
-    if(paste0(filename, ".rds") %in% list.files(paste0(base, "/tmp/", filepath, "/result_intermediate"))){
-      result = readRDS(paste0(base, "/tmp/", filepath, "/result_intermediate/", filename, ".rds"))
-      i_allmethods = result[[1]]$i_allmethods
-    }
+  if(paste0(filename, ".rds") %in% list.files(paste0(base, "/tmp/", filepath, "/result_intermediate"))){
+    result = readRDS(paste0(base, "/tmp/", filepath, "/result_intermediate/", filename, ".rds"))
+    i_allmethods = result[[1]]$i_allmethods
   }
   rep = length(result) + 1
   
@@ -631,7 +589,7 @@ run.all <- function(n, p, rho, snr, type, nrep, random.x=TRUE, write.to.file=FAL
     
     if(rep %% 100 == 0){
       print(rep)
-      ## Save temporary results
+      ## Save intermediate results
       if(write.to.file){
         saveRDS(result, paste0(base, "/tmp/", filepath, "/result_intermediate/", filename, ".rds"))
         saveRDS(betahat_all[(rep-100+1):rep], paste0(base, "/tmp/", filepath, "/betahat/", filename, "_rep", rep, ".rds"))
@@ -658,445 +616,4 @@ run.all <- function(n, p, rho, snr, type, nrep, random.x=TRUE, write.to.file=FAL
   }
   
   return(result_final)
-}
-
-old <- function(){
-  gen.beta.Sigma <- function(p, rho, type){
-    # Covariance matrix and true beta
-    # beta0 = 0 # for the intercept term
-    if(type == "Sparse-Ex1" | type == "Omit"){
-      # Zhang, Li and Tsai (2010)
-      Sigma = Matrix(rho^abs(outer(1:p, 1:p, "-")), sparse = TRUE)
-      beta = Matrix(c(rev(seq(1, 3.5, by=0.5)), rep(0,p-6)), ncol=1, sparse = TRUE)
-    }else if(type == "Sparse-Ex2"){
-      Sigma = bdiag(list(rho^abs(outer(1:6, 1:6, "-")), rho^abs(outer(7:p, 7:p, "-"))))
-      beta = Matrix(c(c(1,1,3,3,5,5), rep(0,p-6)), ncol=1, sparse = TRUE)
-    }else if(type == "Sparse-Ex3"){
-      Sigma = Diagonal(p)
-      for(i in 1:6){
-        Sigma[i,i+6] = Sigma[i+6,i] = rho
-      }
-      beta = Matrix(c(rep(1,6), rep(0,p-6)), ncol=1, sparse = TRUE)
-    }else if(type == "Sparse-Ex4"){
-      Sigma = Diagonal(p)
-      for(i in 1:3){
-        Sigma[2*i-1,2*i] = Sigma[2*i,2*i-1] = rho
-      }
-      beta = Matrix(c(c(1,-1,3,-3,5,-5), rep(0,p-6)), ncol=1, sparse = TRUE)
-    }else if(type == "Dense-Ex1"){
-      Sigma = Matrix(rho^abs(outer(1:p, 1:p, "-")), sparse=TRUE)
-      kappa = 10
-      beta = Matrix((-1)^seq(1,p) * exp(-seq(1,p)/kappa), ncol=1, sparse = TRUE)
-    }else if(type == "Dense-Ex2"){
-      Sigma = Matrix(rho^abs(outer(1:p, 1:p, "-")), sparse=TRUE)
-      kappa = 50
-      beta = Matrix((-1)^seq(1,p) * exp(-seq(1,p)/kappa), ncol=1, sparse = TRUE)
-    }else if(type == "Exponential"){
-      Sigma = Diagonal(p)
-      #beta = beta0 = NULL
-      beta = NULL
-    }
-    
-    if(rho != 0){
-      obj = svd(Sigma)
-      Sigma.half = Matrix(obj$u %*% (sqrt(diag(obj$d))) %*% t(obj$v), sparse=TRUE)
-    }else{
-      Sigma.half = NULL
-    }
-    
-    return(list(beta=beta, Sigma=Sigma, Sigma.half=Sigma.half))
-  }
-  gen.beta.Sigma.restriction <- function(p, rho, type){
-    # Covariance matrix and true beta
-    # Zhang, Li and Tsai (2010)
-    Sigma = Matrix(rho^abs(outer(1:p, 1:p, "-")), sparse = TRUE)
-    if(rho != 0){
-      obj = svd(Sigma)
-      Sigma.half = Matrix(obj$u %*% (sqrt(diag(obj$d))) %*% t(obj$v), sparse=TRUE)
-    }else{
-      Sigma.half = NULL
-    }
-    
-    if(type == "Ex1"){
-      beta = Matrix(c(2,2,2,1,1,1), ncol=1)
-      # ## True restriction
-      # R = Matrix(0, nrow=4, ncol=p)
-      # R[1,1] = R[2,2] = R[3,4] = R[4,5] = 1
-      # R[1,2] = R[2,3] = R[3,5] = R[4,6] = -1
-      # r = rep(0, 4)
-      # ## All candidate restrictions
-      # m = nrow(R)
-      
-      # R_candidate = rbind(R, c(0,0,1,-1,0,0))
-      # r_candidate = c(r, 0)
-      # 
-      # R_all = list(Matrix(, nrow=0, ncol=p)) # No restrictions
-      # r_all = list(numeric(0)) # No restrictions
-      # R_all = c(R_all, lapply(1:nrow(R_candidate), function(i){R_candidate[1:i, , drop=FALSE]}))
-      # r_all = c(r_all, lapply(1:length(r_candidate), function(i){r_candidate[1:i]}))
-      # R_all = c(R_all, list(Diagonal(p))) # null model
-      # r_all = c(r_all, list(rep(0,p))) # null model
-      # 
-      # R_all = rev(R_all)
-      # r_all = rev(r_all)
-      
-      # beta = Matrix(c(2,2,2,1,1,1,rep(0,p-6)), ncol=1)
-      # R_candidate = Matrix(0, nrow=p, ncol=p)
-      # R_candidate[1,1] = R_candidate[2,2] = R_candidate[3,4] = R_candidate[4,5] = 1
-      # R_candidate[1,2] = R_candidate[2,3] = R_candidate[3,5] = R_candidate[4,6] = -1
-      # for(i in 7:p){
-      #   R_candidate[i-2,i] = 1
-      # }
-      # R_candidate[p-1, 1] = R_candidate[p, 4] = 1
-      # r_candidate = rep(0, p)
-      # 
-      # 
-      # R_all = list(Matrix(, nrow=0, ncol=p)) # No restrictions
-      # r_all = list(numeric(0)) # No restrictions
-      # R_all = c(R_all, lapply(1:nrow(R_candidate), function(i){R_candidate[1:i, , drop=FALSE]}))
-      # r_all = c(r_all, lapply(1:length(r_candidate), function(i){r_candidate[1:i]}))
-      
-      ### recent
-      # R_correct = Matrix(rbind(c(1,-1,0,0,0,0), c(0,1,-1,0,0,0), c(0,0,0,1,-1,0), c(0,0,0,0,1,-1), c(1,0,0,-2,0,0)), sparse=TRUE)
-      # r_correct = rep(0, 5)
-      # R_wrong = Matrix(rbind(c(1,0,0,-1,0,0), c(0,1,0,0,-1,0), c(0,0,1,0,0,-1), c(1,-2,0,0,0,0), c(0,1,-2,0,0,0)), sparse=TRUE)
-      # r_wrong = rep(0, 5)
-      
-      ### 
-      R_candidate = Matrix(rbind(c(1,-1,0,0,0,0), c(0,1,-1,0,0,0), c(0,0,0,1,-1,0), c(0,0,0,0,1,-1), c(1,0,0,-1,0,0), c(1,-2,0,0,0,0)), sparse=TRUE)
-      r_candidate = Matrix(rep(0, 6), ncol=1)
-      
-      # R_all = lapply(1:nrow(R), function(i){R[1:i, , drop=FALSE]})
-      # r_all = lapply(1:length(r), function(i){r[1:i]})
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,-2,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # 
-      # R_wrong = Matrix(0, nrow=5, ncol=p)
-      # R_wrong[1,1] = R_wrong[2,2] = R_wrong[3,3] = R_wrong[4,1] = R_wrong[5,2] = 1
-      # R_wrong[1,4] = R_wrong[2,5] = R_wrong[3,6] = -1
-      # R_wrong[4,2] = R_wrong[5,3] = -2
-      # r_wrong = rep(0, 5)
-      # 
-      # R_all = c(R_all, lapply(1:nrow(R_wrong), function(i){R_wrong[1:i, , drop=FALSE]}))
-      # r_all = c(r_all, lapply(1:length(r_wrong), function(i){r_wrong[1:i]}))
-      # 
-      # R_all = c(R_all, list(Matrix(, nrow=0, ncol=p)))
-      # r_all = c(r_all, list(numeric(0)))
-      # R_all = c(R_all, list(Diagonal(p)))
-      # r_all = c(r_all, list(rep(0,p)))
-      
-      # # Under-specified restrictions
-      # R_all = list(matrix(, nrow=0, ncol=p)) # No restrictions
-      # r_all = list(numeric(0)) # No restrictions
-      # R_all = c(R_all, list(matrix(c(1,-1,0,0,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(rbind(c(1,-1,0,0,0,0), c(0,0,0,1,-1,0), c(0,0,0,0,1,-1))))
-      # r_all = c(r_all, list(c(0,0,0)))
-      # # for(i in 1:m){
-      # #   tmp = combn(m,i)
-      # #   R_all = c(R_all, lapply(split(tmp, col(tmp)), function(ii){R[ii, , drop=FALSE]}))
-      # #   r_all = c(r_all, replicate(dim(tmp)[2], rep(0, i), simplify = FALSE))
-      # # }
-      # 
-      # # Over-specified restrictions
-      # R_all = c(R_all, list(R))
-      # r_all = c(r_all, list(r))
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,-2,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,1,0,0))))
-      # r_all = c(r_all, list(c(r, 3)))
-      # 
-      # # Under-specified and wrong
-      # R_all = c(R_all, list(matrix(c(1,0,0,-1,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(rbind(c(1,0,0,-1,0,0), c(0,1,0,0,-1,0))))
-      # r_all = c(r_all, list(c(0,0)))
-      # R_all = c(R_all, list(rbind(c(1,0,0,-1,0,0), c(0,1,0,0,-1,0), c(0,0,1,0,0,-1))))
-      # r_all = c(r_all, list(c(0,0,0)))
-      # 
-      # # Over-specified and wrong
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,-1,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,-3,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,1,0,0))))
-      # r_all = c(r_all, list(c(r, 1)))
-      
-    }else if(type == "Ex2"){
-      beta = Matrix(c(-2,2,2,-1.5,-1.5,1), ncol=1)
-      # ## True restriction
-      # R = Matrix(rbind(c(1,1,0,0,0,0), c(0,0,1,1,1,1)), sparse=TRUE)
-      # r = rep(0, 2)
-      # ## All candidate restrictions
-      # m = nrow(R)
-      # 
-      # R_candidate = rbind(R, c(0,0,1,1,0,0), c(0,1,1,0,0,0), c(0,0,0,1,1,0))
-      # r_candidate = c(r, 0, 0, 0)
-      # 
-      # R_all = list(Matrix(, nrow=0, ncol=p)) # No restrictions
-      # r_all = list(numeric(0)) # No restrictions
-      # R_all = c(R_all, lapply(1:nrow(R_candidate), function(i){R_candidate[1:i, , drop=FALSE]}))
-      # r_all = c(r_all, lapply(1:length(r_candidate), function(i){r_candidate[1:i]}))
-      # R_all = c(R_all, list(Diagonal(p))) # null model
-      # r_all = c(r_all, list(rep(0,p))) # null model
-      # 
-      # R_all = rev(R_all)
-      # r_all = rev(r_all)
-      
-      ### recent
-      # R_correct = Matrix(rbind(c(1,1,0,0,0,0), c(0,0,1,1,1,1), c(1,0,1,0,0,0), c(0,0,1,0,0,-2), c(0,0,0,1,-1,0)), sparse=TRUE)
-      # r_correct = rep(0, 5)
-      # R_wrong = Matrix(rbind(c(0,0,0,0,1,1), c(1,1,1,1,0,0), c(0,0,0,1,0,1), c(-2,0,0,1,0,0), c(1,-1,0,0,0,0)), sparse=TRUE)
-      # r_wrong = rep(0, 5)
-      
-      R_candidate = Matrix(rbind(c(1,1,0,0,0,0), c(0,0,1,1,1,1), c(0,0,0,0,1,1), c(0,0,0,1,0,1), c(-2,0,0,1,0,0), c(1,-1,0,0,0,0)), sparse=TRUE)
-      r_candidate = Matrix(rep(0, 6), ncol=1)
-      # # No restrictions
-      # R_all = list(matrix(, nrow=0, ncol=p))
-      # r_all = list(numeric(0))
-      # # Under-specified restrictions
-      # R_all = c(R_all, list(matrix(c(1,1,0,0,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(matrix(c(0,0,1,1,1,1), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # # for(i in 1:m){
-      # #   tmp = combn(m,i)
-      # #   R_all = c(R_all, lapply(split(tmp, col(tmp)), function(ii){R[ii, , drop=FALSE]}))
-      # #   r_all = c(r_all, replicate(dim(tmp)[2], rep(0, i), simplify = FALSE))
-      # # }
-      # 
-      # # Over-specified restrictions
-      # R_all = c(R_all, list(R))
-      # r_all = c(r_all, list(r))
-      # R_all = c(R_all, list(rbind(R, c(1,0,-1,0,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(0,0,0,1,-1,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # 
-      # # Under-specified and wrong
-      # R_all = c(R_all, list(matrix(c(1,-1,0,0,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(matrix(c(1,0,1,0,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(matrix(c(1,1,1,1,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # 
-      # # Over-specified and wrong
-      # R_all = c(R_all, list(rbind(R, c(1,0,-2,0,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(0,0,0,1,-2,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(0,0,1,1,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      
-    }else if(type == "Ex3"){
-      beta = Matrix(c(2,-2,1,-1,0.5,-0.5), ncol=1)
-      
-      # ## True restriction
-      # R = Matrix(rbind(c(1,1,0,0,0,0), c(0,0,1,1,0,0), c(0,0,0,0,1,1)), sparse=TRUE)
-      # r = rep(0, 3)
-      # ## All candidate restrictions
-      # m = nrow(R)
-      # 
-      # R_candidate = rbind(R, c(0,1,1,0,0,0), c(0,0,0,1,1,0))
-      # r_candidate = c(r, 0, 0)
-      # 
-      # R_all = list(Matrix(, nrow=0, ncol=p)) # No restrictions
-      # r_all = list(numeric(0)) # No restrictions
-      # R_all = c(R_all, lapply(1:nrow(R_candidate), function(i){R_candidate[1:i, , drop=FALSE]}))
-      # r_all = c(r_all, lapply(1:length(r_candidate), function(i){r_candidate[1:i]}))
-      # R_all = c(R_all, list(Diagonal(p))) # null model
-      # r_all = c(r_all, list(rep(0,p))) # null model
-      # 
-      # R_all = rev(R_all)
-      # r_all = rev(r_all)
-      
-      ### recent
-      # R_correct = Matrix(rbind(c(1,1,0,0,0,0), c(0,0,1,1,0,0), c(0,0,0,0,1,1), c(1,0,-2,0,0,0), c(0,0,1,0,-2,0)), sparse=TRUE)
-      # r_correct = rep(0, 5)
-      # R_wrong = Matrix(rbind(c(1,0,0,1,0,0), c(0,1,0,0,1,0), c(0,0,1,0,0,1), c(1,-2,0,0,0,0), c(0,1,-2,0,0,0)), sparse=TRUE)
-      # r_wrong = rep(0, 5)
-      
-      R_candidate = Matrix(rbind(c(1,1,0,0,0,0), c(0,0,1,1,0,0), c(0,0,0,0,1,1), c(1,0,0,1,0,0), c(0,1,0,0,1,0), c(1,-1,0,0,0,0)), sparse=TRUE)
-      r_candidate = Matrix(rep(0, 6), ncol=1)
-      
-      # # No restrictions
-      # R_all = list(matrix(, nrow=0, ncol=p))
-      # r_all = list(numeric(0))
-      # # Under-specified restrictions
-      # # for(i in 1:m){
-      # #   tmp = combn(m,i)
-      # #   R_all = c(R_all, lapply(split(tmp, col(tmp)), function(ii){R[ii, , drop=FALSE]}))
-      # #   r_all = c(r_all, replicate(dim(tmp)[2], rep(0, i), simplify = FALSE))
-      # # }
-      # R_all = c(R_all, list(matrix(c(1,1,0,0,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(rbind(c(1,1,0,0,0,0), c(0,0,1,1,0,0))))
-      # r_all = c(r_all, list(c(0,0)))
-      # 
-      # # Over-specified restrictions
-      # R_all = c(R_all, list(R))
-      # r_all = c(r_all, list(r))
-      # R_all = c(R_all, list(rbind(R, c(1,0,-2,0,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(1,0,-2,0,0,0), c(0,0,1,0,-2,0))))
-      # r_all = c(r_all, list(c(r, 0, 0)))
-      # 
-      # # Under-specified and wrong
-      # R_all = c(R_all, list(matrix(c(1,0,0,-1,0,0), nrow=1)))
-      # r_all = c(r_all, list(0))
-      # R_all = c(R_all, list(rbind(c(1,0,0,-1,0,0), c(0,1,0,0,-1,0))))
-      # r_all = c(r_all, list(c(0,0)))
-      # R_all = c(R_all, list(rbind(c(1,0,0,-1,0,0), c(0,0,1,0,0,-1))))
-      # r_all = c(r_all, list(c(0,0)))
-      # 
-      # # Over-specified and wrong
-      # R_all = c(R_all, list(rbind(R, c(1,0,-3,0,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,-2,0,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      # R_all = c(R_all, list(rbind(R, c(1,0,0,0,-2,0))))
-      # r_all = c(r_all, list(c(r, 0)))
-      
-    }else if(type == "Ex4"){
-      beta = Matrix(c(2,2,2,1,1,1, rep(0,p-6)), ncol=1)
-      R_candidate = cbind(Matrix(0, nrow=p-6, ncol=6), apply(Diagonal(p-6), 1, rev))
-      R_candidate = rbind(R_candidate, 
-                          cbind(Matrix(rbind(c(0,0,0,0,1,-1), c(0,0,0,1,-1,0), c(0,1,-1,0,0,0), c(1,-1,0,0,0,0), c(1,-2,0,0,0,0), c(1,0,0,-1,0,0))), Matrix(0, nrow=6, ncol=p-6))
-      )
-      r_candidate = Matrix(rep(0, p), ncol=1)
-    }else if(type == "Ex5"){
-      beta = Matrix(c(-2,2,2,-1.5,-1.5,1, rep(0,p-6)), ncol=1)
-      R_candidate = cbind(Matrix(0, nrow=p-6, ncol=6), apply(Diagonal(p-6), 1, rev))
-      R_candidate = rbind(R_candidate, 
-                          cbind(Matrix(rbind(c(0,0,1,1,1,1), c(1,1,0,0,0,0), c(0,0,0,0,1,1), c(0,0,0,1,0,1), c(-2,0,0,1,0,0), c(1,-1,0,0,0,0))), Matrix(0, nrow=6, ncol=p-6))
-      )
-      r_candidate = Matrix(rep(0, p), ncol=1)
-    }else if(type == "Ex6"){
-      beta = Matrix(c(2,-2,1,-1,0.5,-0.5, rep(0,p-6)), ncol=1)
-      R_candidate = cbind(Matrix(0, nrow=p-6, ncol=6), apply(Diagonal(p-6), 1, rev))
-      R_candidate = rbind(R_candidate, 
-                          cbind(Matrix(rbind(c(0,0,0,0,1,1), c(0,0,1,1,0,0), c(1,1,0,0,0,0), c(0,1,0,0,1,0), c(1,0,0,1,0,0), c(1,-1,0,0,0,0))), Matrix(0, nrow=6, ncol=p-6))
-      )
-      r_candidate = Matrix(rep(0, p), ncol=1)
-    }
-    
-    ### recent
-    # R_all = r_all = list()
-    # for(i in 1:5){
-    #   tmp = combn(5,i)
-    #   R_all = c(R_all, lapply(split(tmp, col(tmp)), function(ii){R_correct[ii, , drop=FALSE]}))
-    #   r_all = c(r_all, lapply(split(tmp, col(tmp)), function(ii){r_correct[ii]}))
-    #   R_all = c(R_all, lapply(split(tmp, col(tmp)), function(ii){R_wrong[ii, , drop=FALSE]}))
-    #   r_all = c(r_all, lapply(split(tmp, col(tmp)), function(ii){r_wrong[ii]}))
-    # }
-    # R_all = c(R_all, list(Matrix(, nrow=0, ncol=p)))
-    # r_all = c(r_all, list(numeric(0)))
-    # R_all = c(R_all, list(Diagonal(p)))
-    # r_all = c(r_all, list(rep(0,p)))
-    
-    if(type %in% paste0("Ex", seq(1,3))){
-      R_all = r_all = list()
-      for(i in 0:nrow(R_candidate)){
-        if(i == 0){
-          R_all = c(R_all, list(Matrix(, nrow=0, ncol=p)))
-          r_all = c(r_all, list(numeric(0)))
-        }else{
-          tmp = combn(nrow(R_candidate),i)
-          R_all = c(R_all, lapply(split(tmp, col(tmp)), function(ii){R_candidate[ii, , drop=FALSE]}))
-          r_all = c(r_all, lapply(split(tmp, col(tmp)), function(ii){r_candidate[ii, , drop=FALSE]}))
-        }
-      }
-    }else if(type %in% paste0("Ex", seq(4,6))){
-      R_all = list(Matrix(, nrow=0, ncol=p))
-      r_all = list(numeric(0))
-      
-      R_all = c(R_all, lapply(1:p, function(ii){R_candidate[1:ii, , drop=FALSE]}))
-      r_all = c(r_all, lapply(1:p, function(ii){r_candidate[1:ii, , drop=FALSE]}))
-      
-      R_all = rev(R_all)
-      r_all = rev(r_all)
-    }
-    
-    return(list(beta=beta, Sigma=Sigma, Sigma.half=Sigma.half, restriction_candidate=list(R=R_all, r=r_all)))
-  }
-
-  run.all.existingbetahat <- function(n, p, rho, snr, type, nrep, random.x=TRUE, restriction.general=FALSE, write.to.file=FALSE){
-
-  ## Specify filenames, filepaths and etc
-  if(random.x){
-    seed_x = (nrep+1):(2*nrep)
-    filepath = "randomx/"
-  }else{
-    seed_x = rep(nrep+1, nrep)
-    filepath = "fixedx/"
-  }
-  snr_all = c(0.2, 1, 8.5)
-  names(snr_all) = c("lsnr", "msnr", "hsnr")
-  snr_name = names(snr_all)[which(snr_all == snr)]
-
-  if(is.null(rho)){
-    filename = paste0(type, "_n", n, "_p", p, "_", snr_name)
-  }else{
-    filename = paste0(type, "_n", n, "_p", p, "_", snr_name, "_rho", gsub("[.]","",as.character(rho)))
-  }
-
-  if(!restriction.general){
-    filepath = paste0(filepath, "subset_selection")
-    ## Generate beta and Sigma
-    beta_Sigma = gen.beta.Sigma(p, rho, type)
-    m = p:0
-  }else{
-    filepath = paste0(filepath, "general_restriction")
-    ## Generate beta and Sigma
-    beta_Sigma = gen.beta.Sigma.restriction(p, rho, type)
-    m = unlist( lapply(beta_Sigma$restriction_candidate$R, nrow) )
-  }
-
-  ## Check if some intermediate results already exist
-  result = readRDS(paste0(base, "/tmp/", filepath, "/result_intermediate/", filename, ".rds"))
-  # if(paste0(filename, ".rds") %in% list.files(paste0(base, "/tmp/", filepath, "/result_intermediate"))){
-  #   result = readRDS(paste0(base, "/tmp/", filepath, "/result_intermediate/", filename, ".rds"))
-  # }
-  rep_start = 1
-
-  for(rep in rep_start:nrep){
-    if(rep %% 100 == 1){
-      print(rep)
-      betahat_all = list()
-      betahat_all[rep:(rep+99)] = readRDS(paste0(base, "/tmp/", filepath, "/betahat/", filename, "_rep", rep+99, ".rds"))
-    }
-
-    ## Generate data
-    data = gen.data(n, p, snr, type, beta_Sigma$beta, beta_Sigma$Sigma.half, seed.y=rep, seed.x=seed_x[rep])
-
-    i_allmethods = result[[rep]]$i_allmethods
-
-    ## Coefficient vectors for all candidates and corresponding fitted values
-    betahat = betahat_all[[rep]]
-    muhat = data$x %*% betahat
-
-    ## Evaluate the selection rules
-    result[[rep]] = eval.metrics(unlist(i_allmethods), muhat, betahat, data$x, data$y, data$sigma, data$mu, beta_Sigma$beta, beta_Sigma$Sigma, m)
-    # betahat_all[[rep]] = betahat
-
-  }
-
-  ## Adjust the layout of results for the final output
-  allmethods = strsplit(names(i_allmethods), split="_")
-  result_final = list()
-  for(i in 1:length(allmethods)){
-    tmp = do.call(cbind, lapply(1:nrep, function(rep){unlist(lapply(result[[rep]], "[[", i))  }))
-    # if(length(allmethods[[i]]) == 1){
-    #   result_final[[ allmethods[[i]] ]] = split(tmp, row(tmp, as.factor=TRUE))
-    # }else{
-    result_final[[allmethods[[i]][1]]][[allmethods[[i]][2]]] = split(tmp, row(tmp, as.factor=TRUE))
-    # }
-  }
-  if(write.to.file){
-    saveRDS(result_final, paste0(base, "/results/", filepath, "/", filename, ".rds"))
-  }
-
-  return(result_final)
-}
 }
